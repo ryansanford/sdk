@@ -1,0 +1,5 @@
+/.glidehash
+/.gimme-tmp/
+/vendor/
+/.coverage.out
+/coverage.html
