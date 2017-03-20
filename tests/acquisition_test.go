@@ -8,37 +8,12 @@ import (
 	"flywheel.io/sdk/api"
 )
 
-// Separate context creation out from the test
-func (t *F) contextTestAcquisitions() (string, string, string) {
-	groupId := RandStringLower()
-	_, _, err := t.AddGroup(&api.Group{Id: groupId})
-	t.So(err, ShouldBeNil)
-
-	projectName := RandString()
-	project := &api.Project{
-		Name:    projectName,
-		GroupId: groupId,
-	}
-	projectId, _, err := t.AddProject(project)
-	t.So(err, ShouldBeNil)
-
-	sessionName := RandString()
-	session := &api.Session{
-		Name: sessionName,
-		ProjectId: projectId,
-	}
-	sessionId, _, err := t.AddSession(session)
-	t.So(err, ShouldBeNil)
-
-	return groupId, projectId, sessionId
-}
-
 func (t *F) TestAcquisitions() {
-	_, _, sessionId := t.contextTestAcquisitions()
+	_, _, sessionId := t.createTestSession()
 
 	acquisitionName := RandString()
 	acquisition := &api.Acquisition{
-		Name: acquisitionName,
+		Name:      acquisitionName,
 		SessionId: sessionId,
 	}
 
@@ -82,7 +57,8 @@ func (t *F) TestAcquisitions() {
 }
 
 func (t *F) TestAcquisitionUpload() {
-	_, _, sessionId := t.contextTestAcquisitions()
+	_, _, sessionId := t.createTestSession()
+
 	acquisition := &api.Acquisition{Name: RandString(), SessionId: sessionId}
 	acquisitionId, _, err := t.AddAcquisition(acquisition)
 	t.So(err, ShouldBeNil)
@@ -99,4 +75,18 @@ func (t *F) TestAcquisitionUpload() {
 	t.So(rAcquisition.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rAcquisition.Files[0].Size, ShouldEqual, 42)
 	t.So(rAcquisition.Files[0].Mimetype, ShouldEqual, "text/plain")
+}
+
+func (t *F) createTestAcquisition() (string, string, string, string) {
+	groupId, projectId, sessionId := t.createTestSession()
+
+	acquisitionName := RandString()
+	acquisition := &api.Acquisition{
+		Name:      acquisitionName,
+		SessionId: sessionId,
+	}
+	acquisitionId, _, err := t.AddAcquisition(acquisition)
+	t.So(err, ShouldBeNil)
+
+	return groupId, projectId, sessionId, acquisitionId
 }

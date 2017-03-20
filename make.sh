@@ -206,13 +206,17 @@ formatCheck() {
 _test() {
 	hideEmptyTests="/\[no test files\]$/d; /^warning\: no packages being tested depend on /d; /^=== RUN   /d;"
 
+	# Clean out the absolute-path pollution, and highlight source code filenames.
+	filterAbsolutePaths="s#$GOROOT/src/##g; s#$GOPATH/src/##g; s#$pkg/vendor/##g; s#$PWD/##g;"
+	highlightGoFiles="s#[a-zA-Z0-9_]*\.go#$(tput setaf 1)&$(tput sgr0)#;"
+
 	# If testing a single package, coverprofile is availible.
 	# Set which package to test and which package to count coverage against.
 
 	if [[ $testPkg == "" ]]; then
-		go test -v -cover "$@" $pkg $(listPackages $pkg/) 2>&1 | sed -r "$hideEmptyTests"
+		go test -v -cover "$@" $pkg $(listPackages $pkg/) 2>&1 | sed -r "$hideEmptyTests $filterAbsolutePaths $highlightGoFiles"
 	else
-		go test -v -cover -coverprofile=.coverage.out -coverpkg $coverPkg "$@" $testPkg 2>&1 | sed -r "$hideEmptyTests"
+		go test -v -cover -coverprofile=.coverage.out -coverpkg $coverPkg "$@" $testPkg 2>&1 | sed -r "$hideEmptyTests $filterAbsolutePaths $highlightGoFiles"
 
 		go tool cover -html=.coverage.out -o coverage.html
 	fi

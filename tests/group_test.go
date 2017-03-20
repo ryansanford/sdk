@@ -9,7 +9,7 @@ import (
 )
 
 func (t *F) TestGroups() {
-	groupId := RandStringLower() // conform to group ID regex
+	groupId := RandStringLower()
 	groupName := RandString()
 
 	group := &api.Group{
@@ -57,4 +57,13 @@ func (t *F) TestGroups() {
 	groups, _, err = t.GetAllGroups()
 	t.So(err, ShouldBeNil)
 	t.So(groups, ShouldNotContain, savedGroup)
+}
+
+func (t *F) createTestGroup() string {
+	groupId := RandStringLower() // conform to group ID regex
+
+	_, _, err := t.AddGroup(&api.Group{Id: groupId})
+	t.So(err, ShouldBeNil)
+
+	return groupId
 }

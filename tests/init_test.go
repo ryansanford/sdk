@@ -12,7 +12,6 @@ import (
 )
 
 /*
-
 	Testing goals, in order:
 
 	1) automatically parallel on the terminal
@@ -24,25 +23,31 @@ import (
 	For goal #1, Gunit seems to be the best-equipped to handle things, and there's some agreement on that:
 
 	> I know that I'm the creator of GoConvey and all, but I've actually moved to gunit,
-	> which uses t.Parallel() under the hood for every test case.
-	> - @mdwhatcott
+	> which uses t.Parallel() under the hood for every test case. - @mdwhatcott
 	> https://github.com/smartystreets/goconvey/issues/360
 
-	Downside: we have to put up with gunit's struct model. It doesn't look too bad, and might turn out to be helpful.
-
-
-	For goal #4, my plan is to incorportate go-vcr:
+	For goal #4, my plan is to incorporate go-vcr:
 	https://github.com/dnaeon/go-vcr
 
 	The implementation throws requests in YAML files, which... eh, let's try it maybe.
 	There will have to be some setup trickery to transparently hit live or recorded.
 	I think the vcr transport should handle that.
 
+
+	Test requirements:
+
+	1) Each test works independent of any preexisting state, or lack thereof. Only a working, root API key is required.
+	2) Ideally tests can clean up after themselves, but this is not required.
+
+	Please keep these goals and requirements in mind when modifying this package.
+
+
+	There are instances where context creation could/should be handed off to a struct setup - right now, those are instead handled by "context" functions. This isn't a perfect layout if we had a larger test suite, but seems to work fine for now. Let's leave it until & unless it becomes unbearable.
 */
 
 // TestSuite fires off gunit.
 //
-// Gunit will look at various function name prefixes to determine behaviour:
+// Gunit will look at various function name prefixes to determine behavior:
 //
 //   "Test": Well, it's a test.
 //   "Skip": Skipped.

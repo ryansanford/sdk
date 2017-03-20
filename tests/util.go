@@ -20,21 +20,26 @@ func init() {
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var hexRunes = []rune("0123456789abcdef")
 
-func RandStringOfLength(n int) string {
+func RandStringOfLength(n int, runes []rune) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		b[i] = runes[rand.Intn(len(runes))]
 	}
 	return string(b)
 }
 
 func RandString() string {
-	return RandStringOfLength(10)
+	return RandStringOfLength(10, letterRunes)
 }
 
 func RandStringLower() string {
-	return strings.ToLower(RandStringOfLength(10))
+	return strings.ToLower(RandStringOfLength(10, letterRunes))
+}
+
+func RandHex() string {
+	return RandStringOfLength(24, hexRunes)
 }
 
 // BEGIN: several variables lifted from smartystreets/assertions, because not exported :(

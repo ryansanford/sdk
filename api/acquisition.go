@@ -81,7 +81,6 @@ func (c *Client) DeleteAcquisition(id string) (*http.Response, error) {
 }
 
 func (c *Client) UploadToAcquisition(id string, files ...*UploadSource) (chan int64, chan error) {
-
-	url := "acquisitions/"+id+"/files"
+	url := "acquisitions/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
 }

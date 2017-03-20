@@ -8,18 +8,8 @@ import (
 	"flywheel.io/sdk/api"
 )
 
-// Separate context creation out from the test
-func (t *F) contextTestProjects() string {
-	// Context
-	groupId := RandStringLower()
-	_, _, err := t.AddGroup(&api.Group{Id: groupId})
-	t.So(err, ShouldBeNil)
-
-	return groupId
-}
-
 func (t *F) TestProjects() {
-	groupId := t.contextTestProjects()
+	groupId := t.createTestGroup()
 
 	projectName := RandString()
 	project := &api.Project{
@@ -67,7 +57,8 @@ func (t *F) TestProjects() {
 }
 
 func (t *F) TestProjectUpload() {
-	groupId := t.contextTestProjects()
+	groupId := t.createTestGroup()
+
 	project := &api.Project{Name: RandString(), GroupId: groupId}
 	projectId, _, err := t.AddProject(project)
 	t.So(err, ShouldBeNil)
@@ -84,4 +75,17 @@ func (t *F) TestProjectUpload() {
 	t.So(rProject.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rProject.Files[0].Size, ShouldEqual, 45)
 	t.So(rProject.Files[0].Mimetype, ShouldEqual, "text/plain")
+}
+
+func (t *F) createTestProject() (string, string) {
+	groupId := t.createTestGroup()
+
+	project := &api.Project{
+		Name:    RandString(),
+		GroupId: groupId,
+	}
+	projectId, _, err := t.AddProject(project)
+	t.So(err, ShouldBeNil)
+
+	return groupId, projectId
 }

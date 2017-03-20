@@ -29,7 +29,7 @@ type UploadSource struct {
 // Bundle an http response and error together for returning over a channel
 type UploadResponse struct {
 	Response *http.Response
-	Error error
+	Error    error
 }
 
 func CreateUploadSourceFromFilenames(filenames ...string) []*UploadSource {

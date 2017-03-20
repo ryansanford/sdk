@@ -8,29 +8,12 @@ import (
 	"flywheel.io/sdk/api"
 )
 
-// Separate context creation out from the test
-func (t *F) contextTestSessions() (string, string) {
-	groupId := RandStringLower()
-	_, _, err := t.AddGroup(&api.Group{Id: groupId})
-	t.So(err, ShouldBeNil)
-
-	projectName := RandString()
-	project := &api.Project{
-		Name:    projectName,
-		GroupId: groupId,
-	}
-	projectId, _, err := t.AddProject(project)
-	t.So(err, ShouldBeNil)
-
-	return groupId, projectId
-}
-
 func (t *F) TestSessions() {
-	_, projectId := t.contextTestSessions()
+	_, projectId := t.createTestProject()
 
 	sessionName := RandString()
 	session := &api.Session{
-		Name: sessionName,
+		Name:      sessionName,
 		ProjectId: projectId,
 	}
 
@@ -74,7 +57,7 @@ func (t *F) TestSessions() {
 }
 
 func (t *F) TestSessionUpload() {
-	_, projectId := t.contextTestSessions()
+	_, projectId := t.createTestProject()
 	session := &api.Session{Name: RandString(), ProjectId: projectId}
 	sessionId, _, err := t.AddSession(session)
 	t.So(err, ShouldBeNil)
@@ -91,4 +74,18 @@ func (t *F) TestSessionUpload() {
 	t.So(rSession.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rSession.Files[0].Size, ShouldEqual, 33)
 	t.So(rSession.Files[0].Mimetype, ShouldEqual, "text/plain")
+}
+
+func (t *F) createTestSession() (string, string, string) {
+	groupId, projectId := t.createTestProject()
+
+	sessionName := RandString()
+	session := &api.Session{
+		Name:      sessionName,
+		ProjectId: projectId,
+	}
+	sessionId, _, err := t.AddSession(session)
+	t.So(err, ShouldBeNil)
+
+	return groupId, projectId, sessionId
 }

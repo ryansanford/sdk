@@ -16,7 +16,6 @@ func (t *F) sanityCheckUser(user *api.User) {
 	now := time.Now()
 	t.So(*user.Created, ShouldHappenBefore, now)
 	t.So(*user.Modified, ShouldHappenBefore, now)
-
 }
 
 func (t *F) TestGetCurrentUser() {

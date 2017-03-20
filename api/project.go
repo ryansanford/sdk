@@ -79,7 +79,6 @@ func (c *Client) DeleteProject(id string) (*http.Response, error) {
 }
 
 func (c *Client) UploadToProject(id string, files ...*UploadSource) (chan int64, chan error) {
-
-	url := "projects/"+id+"/files"
+	url := "projects/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
 }

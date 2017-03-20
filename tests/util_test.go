@@ -34,7 +34,6 @@ func (t *F) TestCoalesce() {
 	t.So(res.Error(), ShouldEqual, "(500) Unknown server error")
 }
 
-
 func (t *F) TestFormat() {
 	wat := api.Format(&api.File{Name: "yeats.txt"})
 	t.So(wat, ShouldEqual, "{\n\t\"name\": \"yeats.txt\"\n}")

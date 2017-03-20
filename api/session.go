@@ -88,7 +88,6 @@ func (c *Client) DeleteSession(id string) (*http.Response, error) {
 }
 
 func (c *Client) UploadToSession(id string, files ...*UploadSource) (chan int64, chan error) {
-
-	url := "sessions/"+id+"/files"
+	url := "sessions/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
 }

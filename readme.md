@@ -4,12 +4,9 @@ A golang SDK for interaction with a remote Flywheel instance.
 
 ## Route Implementation Status
 
-List from routing table in [api.py](https://github.com/scitran/core/blob/master/api/api.py):
-
 Route                                                                                 | In SDK
 --------------------------------------------------------------------------------------|--------
 Get current user<br>`GET /users/self`                                                 | X
-Regenerate current user's API key<br>`POST /users/self/key`                           |
 &nbsp;                                                                                |
 Get all users<br>`GET /users`                                                         | X
 Get user<br>`GET /users/<x>`                                                          | X
@@ -22,9 +19,28 @@ Create container<br>`POST /<ctype>`                                             
 Get container<br>`GET /<ctype>/<x>`                                                   | X
 Modify container<br>`PUT /<ctype>/<x>`                                                | X
 Delete container<br>`DELETE /<ctype>/<x>`                                             | X
+Upload file to container<br>`POST /<ctype>/<x>/files`                                 | X
+Download file from container<br>`GET /<ctype>/<x>/files/<filename>`                   |
 Get jobs that involve container<br>`GET /<ctype>/<x>/jobs`                            |
 &nbsp;                                                                                |
 Resolve path to route<br>`POST /resolve`                                              |
+&nbsp;                                                                                |
+Get all gears<br>`GET /gears`                                                         | X
+Create gear<br>`POST /gears/<id>`                                                     | X
+Get gear invocation<br>`GET /gears<x>/invocation`                                     | X
+Suggest files for gear<br>`GET /gears<x>/suggest/<ctype>/<cid>`                       |
+Delete gear<br>`DELETE /gears/<x>`                                                    | X
+&nbsp;                                                                                |
+Get a job<br>`GET /jobs/<x>`                                                          | X
+Enqueue a job<br>`POST /jobs/add`                                                     | X
+Claim next pending job, and mark as running<br>`GET /jobs/next`                       | X
+Modify job<br>`PUT /jobs/<x>`                                                         | X
+&nbsp;                                                                                |
+Get all batch jobs<br>`GET /batch`                                                    | X
+Get batch job<br>`GET /batch/<x>`                                                     | X
+Propose batch job<br>`POST /batch/<x>`                                                | X
+Run batch job<br>`POST /batch/<x>/run`                                                | X
+Cancel batch job<br>`POST /batch/<x>/cancel`                                          | X
 &nbsp;                                                                                |
 Create bulk download ticket<br>`POST /download`                                       |
 Get bulk download from tricket<br>`GET /download`                                     |
@@ -32,35 +48,9 @@ Get bulk download from tricket<br>`GET /download`                               
 Various upload strategies?<br>`POST/upload/<label|uid|uid-match>`                     |
 Engine upload<br>`POST /engine`                                                       |
 &nbsp;                                                                                |
-Get all jobs<br>`GET /jobs`                                                           |
-Claim next pending job, and mark as running<br>`GET /jobs/next`                       |
-Enqueue a job<br>`POST /jobs/add`                                                     |
-Get job<br>`GET /jobs/<x>`                                                            |
-Modify job<br>`PUT /jobs/<x>`                                                         |
-Get job configuration<br>`GET /jobs/<x>/config.json`                                  |
-Retry job<br>`POST /jobs/<x>/retry`                                                   |
-Get job stats<br>`GET /jobs/stats`                                                    |
-Get all gears<br>`GET /gears`                                                         |
-Get gear invocation<br>`GET /gears<x>/invocation`                                     |
-Suggest files for gear<br>`GET /gears<x>/suggest/<ctype>/<cid>`                       |
-&nbsp;                                                                                |
-Get all gear rules<br>`GET /rules`                                                    |
-Overwrite all gear rules<br>`POST /rules`                                             |
-&nbsp;                                                                                |
-Get all batch jobs<br>`GET /batch`                                                    |
-Get batch job<br>`GET /batch/<x>`                                                     |
-Run batch job<br>`POST /batch/<x>/run`                                                |
-Cancel batch job<br>`POST /batch/<x>/cancel`                                          |
-Get jobs from batch<br>`GET /batch/<x>/jobs`                                          |
-&nbsp;                                                                                |
 Declare a packfile upload to container<br>`POST /<ctype>/<x>/packfile-start`          |
 Upload to packfile<br>`POST /<ctype>/<x>/packfile`                                    |
 Complete packfile and listen for progress<br>`POST /<ctype>/<x>/packfile-end`         |
-&nbsp;                                                                                |
-Get report<br>`GET /report/<site|project>`                                            |
-Search?<br>`POST /search`                                                             |
-Search files?<br>`GET /search/files`                                                  |
-Search container?<br>`GET /search/<ctype>`                                            |
 &nbsp;                                                                                |
 Set project template<br>`POST /projects/<x>/template`                                 |
 Delete project template<br>`DELETE /projects/<x>/template`                            |
@@ -72,23 +62,33 @@ Get device<br>`GET /devices/<x>`                                                
 Get device statuses<br>`GET /devices/status`                                          |
 Get current device<br>`GET /devices/self`                                             |
 &nbsp;                                                                                |
-Get config<br>`GET /config`                                                           | X
-Get version<br>`GET /version`                                                         | X
+Get site configuration<br>`GET /config`                                               | X
+Get site version<br>`GET /version`                                                    | X
 &nbsp;                                                                                |
 _Delayed_                                                                             |
+Regenerate current user's API key<br>`POST /users/self/key`                           |
 Get user groups<br>`GET /users/<x>/groups`                                            |
 Get containers for user?<br>`GET /users/<x>/<ctype>`                                  |
 Clean out expired packfile progress<br>`POST /clean-packfiles`                        |
 Scan for and fix disconnected jobs<br>`POST /jobs/reap`                               |
+Retry job<br>`POST /jobs/<x>/retry`                                                   |
 List groups with projects the user can access<br>`GET /projects/groups`               |
 Get schema<br>`GET /schemas/<schema>`                                                 |
+Get job stats (redesign on the horizon)<br>`GET /jobs/stats`                          |
+Get report<br>`GET /report/<site|project>`                                            |
+Search?<br>`POST /search`                                                             |
+Search files?<br>`GET /search/files`                                                  |
+Search container?<br>`GET /search/<ctype>`                                            |
+Get all gear rules<br>`GET /rules`                                                    |
+Overwrite all gear rules<br>`POST /rules`                                             |
 &nbsp;                                                                                |
 _Won't be implemented_                                                                |
 List known sites (depreciated)<br>`GET /sites`                                        |
 Register a site (depreciated)<br>`POST /sites`                                        |
 Get current user avatar (no point)<br>`GET /users/self/avatar`                        |
 Get user avatar (no point)<br>`GET /users/<x>/avatar`                                 |
-
+Get all jobs (depreciated) <br>`GET /jobs`                                            |
+Get job configuration (no point)<br>`GET /jobs/<x>/config.json`                       |
 <!--
 
 Left over for another day:

@@ -21,6 +21,17 @@ type Origin struct {
 	Type   string `json:"type,omitempty"`
 }
 
+type ContainerReference struct {
+	Id   string `json:"id,omitempty"`
+	Type string `json:"type,omitempty"`
+}
+
+type FileReference struct {
+	Id   string `json:"id,omitempty"`
+	Type string `json:"type,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
 // IdResponse is used for endpoints that respond with an Id.
 type IdResponse struct {
 	Id string `json:"_id"`
