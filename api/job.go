@@ -89,6 +89,23 @@ type Job struct {
 	Modified *time.Time `json:"modified,omitempty"`
 }
 
+type JobLogStatement struct {
+	// The file descriptor the log line came from.
+	// Negative values are external logs from Flywheel components;
+	// One is standard out;
+	// Two is standard err;
+	// Other values are invalid.
+	FileDescriptor int8 `json:"fd"`
+
+	// The message for this statement. Typically newline-delimited.
+	Message string `json:"msg"`
+}
+
+type JobLog struct {
+	Id   string             `json:"_id,omitempty"`
+	Logs []*JobLogStatement `json:"logs,omitempty"`
+}
+
 // Get all jobs endpoint is not implemented as it returns a different format
 // https://github.com/scitran/core/issues/704
 
@@ -100,6 +117,14 @@ func (c *Client) GetJob(id string) (*Job, *http.Response, error) {
 	// https://github.com/scitran/core/issues/657
 	resp, err := c.New().Get("jobs/"+id+"?root=true").Receive(&job, &aerr)
 	return job, resp, Coalesce(err, aerr)
+}
+
+func (c *Client) GetJobLogs(id string) (*JobLog, *http.Response, error) {
+	var aerr *Error
+	var logs *JobLog
+
+	resp, err := c.New().Get("jobs/"+id+"/logs").Receive(&logs, &aerr)
+	return logs, resp, Coalesce(err, aerr)
 }
 
 func (c *Client) AddJob(job *Job) (string, *http.Response, error) {
@@ -114,6 +139,15 @@ func (c *Client) AddJob(job *Job) (string, *http.Response, error) {
 	}
 
 	return result, resp, Coalesce(err, aerr)
+}
+
+func (c *Client) AddJobLogs(id string, statements []*JobLogStatement) (*http.Response, error) {
+	var aerr *Error
+
+	// Should not require root flag
+	// https://github.com/scitran/core/issues/657
+	resp, err := c.New().Post("jobs/"+id+"/logs"+"?root=true").BodyJSON(statements).Receive(nil, &aerr)
+	return resp, Coalesce(err, aerr)
 }
 
 func (c *Client) ModifyJob(id string, job *Job, asRoot bool) (*http.Response, error) {
@@ -147,7 +181,7 @@ func (c *Client) StartNextPendingJob(tags ...string) (JobRetrieval, *Job, *http.
 
 	if rerr == nil && job != nil {
 		return JobAquired, job, resp, nil
-	} else if rerr != nil && resp.StatusCode == 400 {
+	} else if rerr != nil && resp != nil && resp.StatusCode == 400 {
 		return NoPendingJobs, nil, resp, nil
 	} else {
 		return JobFailure, nil, resp, rerr

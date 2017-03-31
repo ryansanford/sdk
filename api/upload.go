@@ -104,6 +104,8 @@ func writeUploadSources(writer *multipart.Writer, reader *ProgressReader, metada
 		if err != nil && err != io.EOF {
 			return err
 		}
+
+		file.Reader.Close()
 	}
 
 	return nil

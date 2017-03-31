@@ -135,10 +135,40 @@ func (t *F) TestJobQueue() {
 	t.So(err, ShouldBeNil)
 	t.So(*rJob2.Modified, ShouldHappenAfter, *rJob.Modified)
 
+	// Add logs
+	log1 := []*api.JobLogStatement{
+		{
+			FileDescriptor: -1,
+			Message:        "System message",
+		},
+	}
+	log2 := []*api.JobLogStatement{
+		{
+			FileDescriptor: 1,
+			Message:        "Standard out",
+		},
+		{
+			FileDescriptor: 2,
+			Message:        "Standard err",
+		},
+	}
+	_, err = t.AddJobLogs(jobId, log1)
+	t.So(err, ShouldBeNil)
+	_, err = t.AddJobLogs(jobId, log2)
+	t.So(err, ShouldBeNil)
+
 	// Finish
 	_, err = t.ChangeJobState(jobId, api.Complete, true)
 	t.So(err, ShouldBeNil)
 	rJob3, _, err := t.GetJob(jobId)
 	t.So(rJob3.State, ShouldEqual, api.Complete)
 	t.So(*rJob3.Modified, ShouldHappenAfter, *rJob2.Modified)
+
+	// Check logs
+	logs, _, err := t.GetJobLogs(jobId)
+	t.So(err, ShouldBeNil)
+	t.So(logs.Logs, ShouldHaveLength, 3)
+	t.So(logs.Logs[0], ShouldResemble, log1[0])
+	t.So(logs.Logs[1], ShouldResemble, log2[0])
+	t.So(logs.Logs[2], ShouldResemble, log2[1])
 }

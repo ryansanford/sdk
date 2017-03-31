@@ -64,8 +64,8 @@ func (t *ApiKeyTransport) Client() *http.Client {
 	return &http.Client{Transport: t}
 }
 
-// cloneRequest returns a clone of the provided *http.Request. The clone is a
-// shallow copy of the struct and its Header map.
+// cloneRequest returns a clone of the provided *http.Request.
+// The clone is a shallow copy of the struct and its Header map.
 func cloneRequest(r *http.Request) *http.Request {
 	// shallow copy of the struct
 	r2 := new(http.Request)

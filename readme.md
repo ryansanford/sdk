@@ -2,6 +2,37 @@
 
 A golang SDK for interaction with a remote Flywheel instance.
 
+## Building
+
+```bash
+git clone git@github.com:flywheel-io/core-sdk workspace/src/flywheel.io/sdk
+ln -s workspace/src/flywheel.io/sdk sdk
+
+./sdk/make.sh
+```
+
+## Testing
+
+Three environment variables control the test suite:
+
+* `SdkTestMode`: set to "unit" or "integration". Right now only integration is supported.
+* `SdkTestHost`: In integration mode, set this to a host:port string. Defaults to "localhost:8443".
+* `SdkTestKey`: In integration mode, set this to an API key. Defaults to "change-me".
+
+If you're logged in with the flywheel CLI (`fw login`), running the integration suite is easy:
+
+```bash
+export SdkTestKey=$(jq -r .key ~/.config/flywheel/user.json)
+
+./sdk/make.sh test
+```
+
+To run a single test:
+
+```bash
+./sdk/make.sh test -run TestSuite/TestGetConfig
+```
+
 ## Route Implementation Status
 
 Route                                                                                 | In SDK
@@ -32,6 +63,8 @@ Suggest files for gear<br>`GET /gears<x>/suggest/<ctype>/<cid>`                 
 Delete gear<br>`DELETE /gears/<x>`                                                    | X
 &nbsp;                                                                                |
 Get a job<br>`GET /jobs/<x>`                                                          | X
+Get a job's logs<br>`GET /jobs/<x>/logs`                                              | X
+Append to a job's logs<br>`POST /jobs/<x>/logs`                                       | X
 Enqueue a job<br>`POST /jobs/add`                                                     | X
 Claim next pending job, and mark as running<br>`GET /jobs/next`                       | X
 Modify job<br>`PUT /jobs/<x>`                                                         | X

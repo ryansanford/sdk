@@ -11,13 +11,11 @@ minGlideV="0.12.3"
 targets=( "darwin/amd64" "linux/amd64" "windows/amd64" )
 #
 
-fatal() {
-	echo -e $1; exit 1
-}
+fatal() { echo -e $1; exit 1; }
 
 # Check that this project is in a gopath
 test -d ../../../src || fatal "This project must be located in a gopath.\nTry cloning instead to \"src/$pkg\"."
-export GOPATH=$(cd ../../../; pwd)
+export GOPATH=$(cd ../../../; pwd); unset GOBIN
 
 # Get system info
 localOs=$( uname -s | tr '[:upper:]' '[:lower:]' )
@@ -111,6 +109,8 @@ prepareGlide() {
 }
 
 build() {
+	extraLdFlags=${1:-}
+
 	# Clean out the absolute-path pollution, and highlight source code filenames.
 	filterAbsolutePaths="s#$GOROOT/src/##g; s#$GOPATH/src/##g; s#$pkg/vendor/##g; s#$PWD/##g;"
 	highlightGoFiles="s#[a-zA-Z0-9_]*\.go#$(tput setaf 1)&$(tput sgr0)#;"
@@ -120,16 +120,22 @@ build() {
 	# Adding -ldflags '-s' strips the the DWARF symbol table and debug information.
 	# https://golang.org/cmd/link
 	#
-	# One downside to this is that cross-compiling will require $GOROOT be writeable.
-	# This seems an entirely reasonable tradeoff: the alternative is *recompiling the standard library N times every build*.
-	# As luck would have it, we're using gimme anyway, which provides a safe, writable Go install in your homedir.
+	# One downside to this when cross-compiling is that it requires a writable $GOROOT.
+	# The only alternative is *recompiling the standard library N times every build*.
+	# Gimmie, provisioned above, provides a safely writable Go install in your homedir.
 	# https://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5
-	go install -v -ldflags '-s' $pkg 2>&1 | sed "$filterAbsolutePaths $highlightGoFiles"
+	go install -v -ldflags "-s $extraLdFlags" $pkg 2>&1 | sed "$filterAbsolutePaths $highlightGoFiles"
 }
 
 crossBuild() {
 	# Placed here, instead of at the top, since it's the only place we need it
 	localArch=$( uname -m | sed 's/x86_//; s/i[3-6]86/32/' )
+
+	# For release builds, detect useful information about the build.
+	# Fails safely & silently. Declare & use these strings in your main!
+	BuildHash=$( which git  > /dev/null && git rev-parse --short HEAD 2> /dev/null || echo "unknown" )
+	BuildDate=$( which date > /dev/null && date "+%Y-%m-%d %H:%M"     2> /dev/null || echo "unknown" )
+	# Datestamp is ISO 8601-ish, without seconds or timezones.
 
 	for target in "${targets[@]}"; do
 
@@ -138,7 +144,7 @@ crossBuild() {
 		os=${targetSplit[0]}; arch=${targetSplit[1]}
 
 		echo -e "\n-- Building $os $arch --"
-		GOOS=$os GOARCH=$arch build
+		GOOS=$os GOARCH=$arch build "-X main.BuildHash=$BuildHash -X 'main.BuildDate=$BuildDate'"
 
 		# Versions of UPX prior to 3.92 had compatibility issues with OSX 10.12 Sierra.
 		# Could augment this with a UPX version check, and compress if local UPX is modern enough.
@@ -206,17 +212,13 @@ formatCheck() {
 _test() {
 	hideEmptyTests="/\[no test files\]$/d; /^warning\: no packages being tested depend on /d; /^=== RUN   /d;"
 
-	# Clean out the absolute-path pollution, and highlight source code filenames.
-	filterAbsolutePaths="s#$GOROOT/src/##g; s#$GOPATH/src/##g; s#$pkg/vendor/##g; s#$PWD/##g;"
-	highlightGoFiles="s#[a-zA-Z0-9_]*\.go#$(tput setaf 1)&$(tput sgr0)#;"
-
 	# If testing a single package, coverprofile is availible.
 	# Set which package to test and which package to count coverage against.
 
 	if [[ $testPkg == "" ]]; then
-		go test -v -cover "$@" $pkg $(listPackages $pkg/) 2>&1 | sed -r "$hideEmptyTests $filterAbsolutePaths $highlightGoFiles"
+		go test -v -cover "$@" $pkg $(listPackages $pkg/) 2>&1 | sed -r "$hideEmptyTests"
 	else
-		go test -v -cover -coverprofile=.coverage.out -coverpkg $coverPkg "$@" $testPkg 2>&1 | sed -r "$hideEmptyTests $filterAbsolutePaths $highlightGoFiles"
+		go test -v -cover -coverprofile=.coverage.out -coverpkg $coverPkg "$@" $testPkg 2>&1 | sed -r "$hideEmptyTests"
 
 		go tool cover -html=.coverage.out -o coverage.html
 	fi
