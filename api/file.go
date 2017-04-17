@@ -15,7 +15,7 @@ type File struct {
 	Type         string   `json:"type,omitempty"`
 	Tags         []string `json:"tags,omitempty"`
 
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Info map[string]interface{} `json:"info,omitempty"`
 
 	Created  *time.Time `json:"created,omitempty"`
 	Modified *time.Time `json:"modified,omitempty"`

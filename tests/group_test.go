@@ -47,6 +47,17 @@ func (t *F) TestGroups() {
 	t.So(changedGroup.Name, ShouldEqual, newName)
 	t.So(*changedGroup.Created, ShouldBeSameTimeAs, *savedGroup.Created)
 
+	// Tags
+	tag := "example-tag-group"
+	_, err = t.AddGroupTag(groupId, tag)
+	t.So(err, ShouldBeNil)
+
+	// Check
+	rGroup, _, err := t.GetGroup(groupId)
+	t.So(err, ShouldBeNil)
+	t.So(rGroup.Tags, ShouldHaveLength, 1)
+	t.So(rGroup.Tags[0], ShouldEqual, tag)
+
 	// Disabled - group modified timestamps do not update
 	// https://github.com/scitran/core/issues/665
 	// t.So(*changedGroup.Modified, ShouldHappenAfter, *savedGroup.Modified)

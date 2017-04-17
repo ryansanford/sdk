@@ -33,7 +33,11 @@ func (t *F) TestAcquisitions() {
 	// Get all
 	acquisitions, _, err := t.GetAllAcquisitions()
 	t.So(err, ShouldBeNil)
-	rAcquisition.Files = nil // workaround: all-container endpoints skip files array, single-container does not. this sets up the equality check
+	// workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check
+	rAcquisition.Files = nil
+	rAcquisition.Notes = nil
+	rAcquisition.Tags = nil
+	rAcquisition.Info = nil
 	t.So(acquisitions, ShouldContain, rAcquisition)
 
 	// Modify
@@ -47,6 +51,22 @@ func (t *F) TestAcquisitions() {
 	t.So(changedAcquisition.Name, ShouldEqual, newName)
 	t.So(*changedAcquisition.Created, ShouldBeSameTimeAs, *rAcquisition.Created)
 	t.So(*changedAcquisition.Modified, ShouldHappenAfter, *rAcquisition.Modified)
+
+	// Notes, tags
+	message := "This is a note"
+	_, err = t.AddAcquisitionNote(acquisitionId, message)
+	t.So(err, ShouldBeNil)
+	tag := "example-tag"
+	_, err = t.AddAcquisitionTag(acquisitionId, tag)
+	t.So(err, ShouldBeNil)
+
+	// Check
+	rAcquisition, _, err = t.GetAcquisition(acquisitionId)
+	t.So(err, ShouldBeNil)
+	t.So(rAcquisition.Notes, ShouldHaveLength, 1)
+	t.So(rAcquisition.Notes[0].Text, ShouldEqual, message)
+	t.So(rAcquisition.Tags, ShouldHaveLength, 1)
+	t.So(rAcquisition.Tags[0], ShouldEqual, tag)
 
 	// Delete
 	_, err = t.DeleteAcquisition(acquisitionId)

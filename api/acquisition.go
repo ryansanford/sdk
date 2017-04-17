@@ -13,6 +13,12 @@ type Acquisition struct {
 	SessionId string `json:"session,omitempty"`
 
 	Timestamp *time.Time `json:"timestamp,omitempty"`
+	Timezone  string     `json:"timezone,omitempty"`
+	Uid       string     `json:"uid,omitempty"`
+
+	Notes []*Note                `json:"notes,omitempty"`
+	Tags  []string               `json:"tags,omitempty"`
+	Info  map[string]interface{} `json:"info,omitempty"`
 
 	Created  *time.Time `json:"created,omitempty"`
 	Modified *time.Time `json:"modified,omitempty"`
@@ -48,6 +54,45 @@ func (c *Client) AddAcquisition(acquisition *Acquisition) (string, *http.Respons
 	}
 
 	return result, resp, Coalesce(err, aerr)
+}
+
+func (c *Client) AddAcquisitionNote(id, text string) (*http.Response, error) {
+	var aerr *Error
+	var response *ModifiedResponse
+
+	note := &Note{
+		Text: text,
+	}
+
+	resp, err := c.New().Post("acquisitions/"+id+"/notes").BodyJSON(note).Receive(&response, &aerr)
+
+	// Should not have to check this count
+	// https://github.com/scitran/core/issues/680
+	if err == nil && aerr == nil && response.ModifiedCount != 1 {
+		return resp, errors.New("Modifying acquisition " + id + " returned " + strconv.Itoa(response.ModifiedCount) + " instead of 1")
+	}
+
+	return resp, Coalesce(err, aerr)
+}
+
+func (c *Client) AddAcquisitionTag(id, tag string) (*http.Response, error) {
+	var aerr *Error
+	var response *ModifiedResponse
+
+	var tagDoc interface{}
+	tagDoc = map[string]interface{}{
+		"value": tag,
+	}
+
+	resp, err := c.New().Post("acquisitions/"+id+"/tags").BodyJSON(tagDoc).Receive(&response, &aerr)
+
+	// Should not have to check this count
+	// https://github.com/scitran/core/issues/680
+	if err == nil && aerr == nil && response.ModifiedCount != 1 {
+		return resp, errors.New("Modifying acquisition " + id + " returned " + strconv.Itoa(response.ModifiedCount) + " instead of 1")
+	}
+
+	return resp, Coalesce(err, aerr)
 }
 
 func (c *Client) ModifyAcquisition(id string, acquisition *Acquisition) (*http.Response, error) {

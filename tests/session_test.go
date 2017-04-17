@@ -15,6 +15,19 @@ func (t *F) TestSessions() {
 	session := &api.Session{
 		Name:      sessionName,
 		ProjectId: projectId,
+		Info: map[string]interface{}{
+			"some-key": 37,
+		},
+		Subject: &api.Subject{
+			Code:      RandStringLower(),
+			Firstname: RandString(),
+			Lastname:  RandString(),
+			Sex:       "other",
+			Age:       56,
+			Info: map[string]interface{}{
+				"some-subject-key": 37,
+			},
+		},
 	}
 
 	// Add
@@ -27,13 +40,25 @@ func (t *F) TestSessions() {
 	t.So(rSession.Id, ShouldEqual, sessionId)
 	t.So(rSession.Name, ShouldEqual, session.Name)
 	now := time.Now()
+	t.So(rSession.Info, ShouldContainKey, "some-key")
+	t.So(rSession.Info["some-key"], ShouldEqual, 37)
 	t.So(*rSession.Created, ShouldHappenBefore, now)
 	t.So(*rSession.Modified, ShouldHappenBefore, now)
+	t.So(*rSession.Subject, ShouldNotBeNil)
+	t.So(rSession.Subject.Id, ShouldNotBeEmpty)
+	t.So(rSession.Subject.Firstname, ShouldResemble, session.Subject.Firstname)
 
 	// Get all
 	sessions, _, err := t.GetAllSessions()
 	t.So(err, ShouldBeNil)
-	rSession.Files = nil // workaround: all-container endpoints skip files array, single-container does not. this sets up the equality check
+	// workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check
+	rSession.Files = nil
+	rSession.Notes = nil
+	rSession.Tags = nil
+	rSession.Info = nil
+	rSession.Subject.Firstname = ""
+	rSession.Subject.Lastname = ""
+
 	t.So(sessions, ShouldContain, rSession)
 
 	// Modify
@@ -47,6 +72,22 @@ func (t *F) TestSessions() {
 	t.So(changedSession.Name, ShouldEqual, newName)
 	t.So(*changedSession.Created, ShouldBeSameTimeAs, *rSession.Created)
 	t.So(*changedSession.Modified, ShouldHappenAfter, *rSession.Modified)
+
+	// Notes, tags
+	message := "This is a note"
+	_, err = t.AddSessionNote(sessionId, message)
+	t.So(err, ShouldBeNil)
+	tag := "example-tag"
+	_, err = t.AddSessionTag(sessionId, tag)
+	t.So(err, ShouldBeNil)
+
+	// Check
+	rSession, _, err = t.GetSession(sessionId)
+	t.So(err, ShouldBeNil)
+	t.So(rSession.Notes, ShouldHaveLength, 1)
+	t.So(rSession.Notes[0].Text, ShouldEqual, message)
+	t.So(rSession.Tags, ShouldHaveLength, 1)
+	t.So(rSession.Tags[0], ShouldEqual, tag)
 
 	// Delete
 	_, err = t.DeleteSession(sessionId)

@@ -13,8 +13,12 @@ func (t *F) TestProjects() {
 
 	projectName := RandString()
 	project := &api.Project{
-		Name:    projectName,
-		GroupId: groupId,
+		Name:        projectName,
+		GroupId:     groupId,
+		Description: "This is a description",
+		Info: map[string]interface{}{
+			"some-key": 37,
+		},
 	}
 
 	// Add
@@ -26,6 +30,9 @@ func (t *F) TestProjects() {
 	t.So(err, ShouldBeNil)
 	t.So(rProject.Id, ShouldEqual, projectId)
 	t.So(rProject.Name, ShouldEqual, project.Name)
+	t.So(rProject.Description, ShouldEqual, project.Description)
+	t.So(rProject.Info, ShouldContainKey, "some-key")
+	t.So(rProject.Info["some-key"], ShouldEqual, 37)
 	now := time.Now()
 	t.So(*rProject.Created, ShouldHappenBefore, now)
 	t.So(*rProject.Modified, ShouldHappenBefore, now)
@@ -33,20 +40,46 @@ func (t *F) TestProjects() {
 	// Get all
 	projects, _, err := t.GetAllProjects()
 	t.So(err, ShouldBeNil)
-	rProject.Files = nil // workaround: all-container endpoints skip files array, single-container does not. this sets up the equality check
+	// workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check
+	rProject.Files = nil
+	rProject.Notes = nil
+	rProject.Tags = nil
+	rProject.Info = nil
 	t.So(projects, ShouldContain, rProject)
 
 	// Modify
 	newName := RandString()
 	projectMod := &api.Project{
 		Name: newName,
+		Info: map[string]interface{}{
+			"another-key": 52,
+		},
 	}
 	_, err = t.ModifyProject(projectId, projectMod)
 	t.So(err, ShouldBeNil)
 	changedProject, _, err := t.GetProject(projectId)
 	t.So(changedProject.Name, ShouldEqual, newName)
+	t.So(changedProject.Info, ShouldContainKey, "some-key")
+	t.So(changedProject.Info, ShouldContainKey, "another-key")
+	t.So(changedProject.Info["another-key"], ShouldEqual, 52)
 	t.So(*changedProject.Created, ShouldBeSameTimeAs, *rProject.Created)
 	t.So(*changedProject.Modified, ShouldHappenAfter, *rProject.Modified)
+
+	// Notes, tags
+	message := "This is a note"
+	_, err = t.AddProjectNote(projectId, message)
+	t.So(err, ShouldBeNil)
+	tag := "example-tag"
+	_, err = t.AddProjectTag(projectId, tag)
+	t.So(err, ShouldBeNil)
+
+	// Check
+	rProject, _, err = t.GetProject(projectId)
+	t.So(err, ShouldBeNil)
+	t.So(rProject.Notes, ShouldHaveLength, 1)
+	t.So(rProject.Notes[0].Text, ShouldEqual, message)
+	t.So(rProject.Tags, ShouldHaveLength, 1)
+	t.So(rProject.Tags[0], ShouldEqual, tag)
 
 	// Delete
 	_, err = t.DeleteProject(projectId)

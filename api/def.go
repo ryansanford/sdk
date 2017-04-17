@@ -1,5 +1,9 @@
 package api
 
+import (
+	"time"
+)
+
 // Error is an API error. All failed server responses should be of this form.
 // TODO: implement error interface, change coalesce
 type Error struct {
@@ -45,4 +49,13 @@ type ModifiedResponse struct {
 // DeleteResponse is used for endpoints that respond with a count of deleted objects.
 type DeletedResponse struct {
 	DeletedCount int `json:"deleted"`
+}
+
+type Note struct {
+	Id     string `json:"id,omitempty"`
+	UserId string `json:"user,omitempty"`
+	Text   string `json:"text,omitempty"`
+
+	Created  *time.Time `json:"created,omitempty"`
+	Modified *time.Time `json:"modified,omitempty"`
 }
