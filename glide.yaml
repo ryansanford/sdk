@@ -1,1 +1,6 @@
 package: flywheel.io/sdk
+
+testImports:
+- name: gopkg.in/mgo.v2
+  repo: https://github.com/go-mgo/mgo
+  version: v2

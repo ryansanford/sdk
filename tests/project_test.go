@@ -105,6 +105,7 @@ func (t *F) TestProjectUpload() {
 
 	rProject, _, err := t.GetProject(projectId)
 	t.So(err, ShouldBeNil)
+	t.So(rProject.Files, ShouldHaveLength, 1)
 	t.So(rProject.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rProject.Files[0].Size, ShouldEqual, 45)
 	t.So(rProject.Files[0].Mimetype, ShouldEqual, "text/plain")

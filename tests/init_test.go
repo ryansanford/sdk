@@ -83,9 +83,15 @@ const (
 	// No affect in unit test mode.
 	SdkTestKey = "SdkTestKey"
 
-	DefaultMode = "integration"
-	DefaultHost = "localhost:8443"
-	DefaultKey  = "change-me"
+	// SdkTestKey is the environment variable that sets the API protocol.
+	// Valid values are "https" and "http".
+	// No affect in unit test mode.
+	SdkProtocolKey = "SdkProtocol"
+
+	DefaultMode     = "integration"
+	DefaultHost     = "localhost:8443"
+	DefaultKey      = "change-me"
+	DefaultProtocol = "https"
 )
 
 // makeClient reads settings from the environment and returns the corresponding client
@@ -107,6 +113,7 @@ func makeClient() *api.Client {
 	if mode == "integration" {
 		host, hostSet := os.LookupEnv(SdkTestHost)
 		key, keySet := os.LookupEnv(SdkTestKey)
+		protocol, protocolSet := os.LookupEnv(SdkProtocolKey)
 
 		if !hostSet {
 			host = DefaultHost
@@ -116,7 +123,17 @@ func makeClient() *api.Client {
 			key = DefaultKey
 		}
 
-		return api.NewApiKeyClient(host, key, true)
+		if !protocolSet {
+			protocol = DefaultProtocol
+		}
+
+		if protocol == "https" {
+			return api.NewApiKeyClient(host, key, true, false)
+		} else if protocol == "http" {
+			return api.NewApiKeyClient(host, key, true, true)
+		} else {
+			panic("Protocol must be http or https, was " + protocol)
+		}
 	}
 
 	return nil

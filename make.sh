@@ -6,9 +6,9 @@ unset CDPATH; cd "$( dirname "${BASH_SOURCE[0]}" )"; cd "`pwd -P`"
 pkg="flywheel.io/sdk"
 testPkg="flywheel.io/sdk/tests"
 coverPkg="flywheel.io/sdk/api"
-goV=${GO_VERSION:-"1.8"}
+goV=${GO_VERSION:-"1.8.1"}
 minGlideV="0.12.3"
-targets=( "darwin/amd64" "linux/amd64" "windows/amd64" )
+targets=( "linux/amd64" "darwin/amd64" "windows/amd64" )
 #
 
 fatal() { echo -e $1; exit 1; }
@@ -110,10 +110,13 @@ prepareGlide() {
 
 build() {
 	extraLdFlags=${1:-}
+	if [ -z "$extraLdFlags" ]; then
+		prepareGlide
+	fi
 
 	# Clean out the absolute-path pollution, and highlight source code filenames.
 	filterAbsolutePaths="s#$GOROOT/src/##g; s#$GOPATH/src/##g; s#$pkg/vendor/##g; s#$PWD/##g;"
-	highlightGoFiles="s#[a-zA-Z0-9_]*\.go#$(tput setaf 1)&$(tput sgr0)#;"
+	highlightGoFiles="s#[a-zA-Z0-9_]*\.go#$(tty -s && tput setaf 1 2>/dev/null || true)&$(tty -s && tput sgr0 2>/dev/null || true)#;"
 
 	# Go install uses $GOPATH/pkg to cache built files. Faster than go build.
 	#
@@ -127,7 +130,9 @@ build() {
 	go install -v -ldflags "-s $extraLdFlags" $pkg 2>&1 | sed "$filterAbsolutePaths $highlightGoFiles"
 }
 
-crossBuild() {
+cross() {
+	prepareGlide
+
 	# Placed here, instead of at the top, since it's the only place we need it
 	localArch=$( uname -m | sed 's/x86_//; s/i[3-6]86/32/' )
 
@@ -160,7 +165,7 @@ crossBuild() {
 
 			binary=$( find "$path" -maxdepth 1 | grep -E "${pkg##*/}(\.exe)*" | head -n 1 )
 
-			which upx > /dev/null && nice upx -q $binary 2>&1 | grep -- "->" || true
+			# which upx > /dev/null && nice upx -q $binary 2>&1 | grep -- "->" || true
 		fi
 
 		# If this system is the current build target, copy the binary to a build folder.
@@ -178,10 +183,42 @@ crossBuild() {
 	which upx > /dev/null || ( echo "UPX is not installed; did not compress binaries." )
 }
 
+prepareCrossBuild() {
+	prepareGo
+
+	flag="$GOROOT/.custom-flags/stdlib-cross-compiled"
+	test -f $flag && return 0
+
+	# Filter out packages that are esoteric, require linking, unexported, or outside the stdlib
+	template='{{.ImportPath}}${{.Standard}}'
+	filter='^(cmd|crypto/x509|debug|go/(build|types)|plugin|runtime|syscall|testing)|internal|vendor|^(net|os/user)$|false$'
+	packages=( $( go list -f $template ... | grep -v -E $filter | cut -f 1 -d '$' ) )
+
+	# Create a dummy Go file that imports every package, so we can cross-compile them ¯\_(ツ)_/¯
+	# This is mainly useful if you'd like to generate these object files, and then cache them for later.
+	# Results in faster cross-compile for your CI build!
+	folder="crossCompileStdlib"; mkdir -p "$folder"
+	tempfile="$folder/main.go"
+	echo -e "package main\nimport (" > $tempfile
+	for package in "${packages[@]}"; do echo "	_ \"$package\"" >> $tempfile; done
+	echo -e ")\nfunc main() { }" >> $tempfile
+
+	(
+		pkg="$pkg/crossCompileStdlib"
+		cross
+		rm -rf $folder
+		find $GOPATH/bin -executable -type f | grep crossCompileStdlib | xargs rm
+		mkdir -p "`dirname "$flag"`"; touch "$flag"
+	)
+}
+
 # Some go tools take package names. Some take file names. Some like the pacakge prefix. Some don't.
 # None of them omit the vendor directory like they should.
 # What follows is a result of these problems.
 # https://github.com/golang/go/issues/19090
+#
+# Check for resolution:
+# git clone git@github.com:golang/go.git; cd go; git branch --contains fa1d54c2edad607866445577fe4949fbe55166e1
 
 
 # List packages with source code: packageA, packageB... First argument is a prefix (optional)
@@ -197,11 +234,13 @@ listBaseFiles() {
 }
 
 format() {
-	gofmt -w -s $(listPackages; listBaseFiles)
+	prepareGo
+	gofmt -w -s $(listPackages && listBaseFiles)
 }
 
 formatCheck() {
-	badFiles=(`gofmt -l -s $(listPackages; listBaseFiles)`)
+	prepareGo
+	badFiles=(`gofmt -l -s $(listPackages && listBaseFiles)`)
 
 	if [[ ${#badFiles[@]} -gt 0 ]]; then
 		echo "The following files need formatting: " ${badFiles[@]}
@@ -210,6 +249,7 @@ formatCheck() {
 }
 
 _test() {
+	prepareGlide
 	hideEmptyTests="/\[no test files\]$/d; /^warning\: no packages being tested depend on /d; /^=== RUN   /d;"
 
 	# If testing a single package, coverprofile is availible.
@@ -224,57 +264,33 @@ _test() {
 	fi
 }
 
+clean() {
+	# Remove all build state
+	prepareGo
+	rm -rvf $GOPATH/pkg $GOPATH/bin/${pkg##*/}
+}
 
-cmd=${1:-"build"}
-shift || true
+showEnv() {
+	prepareGlide 1>&2
+	(go env; echo "PATH=$PATH") | sed 's/^/export /g'
+}
 
+cmd=${1:-"build"}; shift || true
 case "$cmd" in
-	"go" | "godoc" | "gofmt") # Go commands in project context
-		prepareGo
-		$cmd "$@"
-		;;
-	"glide") # Glide commands in project context
-		prepareGlide
-		glide "$@"
-		cleanGlideLockfile
-		;;
-	"make") # Just build
-		prepareGlide
-		build
-		;;
-	"build") # Full build (the default)
-		prepareGlide
-		build
-		format
-		;;
-	"format") # Format code
-		prepareGo
-		format
-		;;
-	"clean") # Remove build state
-		prepareGo
-		rm -rvf $GOPATH/pkg $GOPATH/bin/${pkg##*/}
-		;;
-	"test") # Run tests
-		prepareGlide
-		_test "$@"
-		;;
+	"go" | "godoc" | "gofmt")
+		prepareGo; $cmd "$@";;
+
+	"glide")
+		prepareGlide; glide "$@"; cleanGlideLockfile;;
+
+	"test")
+		_test "$@";;
+
 	"env") # Load environment!   eval $(./make.sh env)
-		prepareGlide 1>&2
-		(go env; echo "PATH=$PATH") | sed 's/^/export /g'
-		;;
-	"ci") # Monolithic CI target
-		prepareGlide
-		build
-		formatCheck
-		_test -race
-		;;
-	"cross") # Cross-compile to every platform
-		prepareGlide
-		crossBuild
-		;;
+		showEnv;;
 	*)
-		echo "Usage: ./make.sh {go|godoc|gofmt|glide|make|build|format|clean|test|env|ci|cross}"
-		exit 1
-		;;
+		type ${cmd} >/dev/null 2>&1 && eval ${cmd} || (
+			echo "Usage: ./make.sh {go|godoc|gofmt|glide|build|format|clean|test|env|ci|cross}"
+			exit 1
+		);;
 esac

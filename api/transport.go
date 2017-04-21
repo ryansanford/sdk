@@ -13,7 +13,7 @@ type Client struct {
 	*sling.Sling
 }
 
-func NewApiKeyClient(host, key string, insecureSkipVerify bool) *Client {
+func NewApiKeyClient(host, key string, insecureSkipVerify bool, insecureUsePlaintext bool) *Client {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecureSkipVerify},
 	}
@@ -25,8 +25,13 @@ func NewApiKeyClient(host, key string, insecureSkipVerify bool) *Client {
 
 	hc := kt.Client()
 
+	protocol := "https"
+	if insecureUsePlaintext {
+		protocol = "http"
+	}
+
 	sc := sling.New().
-		Base("https://" + host + "/").Path("api/").
+		Base(protocol + "://" + host + "/").Path("api/").
 		Client(hc)
 
 	return &Client{
