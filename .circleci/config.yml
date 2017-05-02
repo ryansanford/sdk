@@ -31,6 +31,12 @@ jobs:
             - restore_cache:
                 key: sdk-golang-1-{{ checksum "make.sh"}}-{{ checksum "glide.lock" }}
 
+            # This is a hack to prevent downloading glide on every file change when iterating.
+            # Disable before pushing :/
+            # - run:
+            #     name: Hack
+            #     command: mkdir -p /workspace/bin/ && cp ./glide /workspace/bin/glide
+
             - run:
                 name: Install Dependencies
                 command: ./make.sh glide install
@@ -60,13 +66,20 @@ jobs:
 
             - run:
                 name: Integration Tests
-                # command: ./make.sh test
-                command: ./make.sh test -run TestSuite/TestGetConfig
+                command: ./make.sh test
                 environment:
-                  SdkTestMode: "integration"
-                  SdkTestHost: "localhost:8080"
-                  SdkTestKey:  "insecure-key"
-                  SdkProtocol: "http"
+                  SdkTestMode:     "integration"
+                  SdkTestKey:      "localhost:8080:insecure-key"
+                  SdkTestProtocol: "http"
+
+            - run:
+                name: Triage environment
+                command: ./make.sh go run .circleci/triage-environment.go
+                when: on_fail
+
+            - run:
+                name: Build SDK
+                command: ./make.sh cross
 
             - run:
                 name: Cleanup
@@ -76,5 +89,9 @@ jobs:
                 path: "/workspace/bin"
                 destination: build
 
-# - store_test_results:
-#     path: test-reports/
+            - store_artifacts:
+                path: "/workspace/src/flywheel.io/sdk/bridge/results"
+                destination: bridge
+
+            # - store_test_results:
+            #     path: test-reports/

@@ -89,7 +89,7 @@ func (t *F) TestProjects() {
 	t.So(projects, ShouldNotContain, rProject)
 }
 
-func (t *F) TestProjectUpload() {
+func (t *F) SkipTestProjectUpload() {
 	groupId := t.createTestGroup()
 
 	project := &api.Project{Name: RandString(), GroupId: groupId}

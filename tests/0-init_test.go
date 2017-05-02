@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	// . "github.com/smartystreets/assertions"
+	. "github.com/smartystreets/assertions"
 	"github.com/smartystreets/gunit"
 
 	"flywheel.io/sdk/api"
@@ -56,7 +56,7 @@ import (
 //   "Setup":    Executed before each test.
 //   "Teardown": Executed after  each test.
 //
-// Functions without
+// Functions without these prefixes are ignored.
 func TestSuite(t *testing.T) {
 	gunit.Run(new(F), t)
 }
@@ -73,24 +73,23 @@ const (
 	// Valid values are "unit" and "integration".
 	SdkTestMode = "SdkTestMode"
 
-	// SdkTestHost is the environment variable that sets the test host.
-	// Valid values are a host:port combination: "localhost:8443".
-	// No affect in unit test mode.
-	SdkTestHost = "SdkTestHost"
-
 	// SdkTestKey is the environment variable that sets the test API key.
-	// Valid values are an API key: "32334"
+	// Valid values are an API key: "localhost:8443:change-me"
 	// No affect in unit test mode.
 	SdkTestKey = "SdkTestKey"
 
 	// SdkTestKey is the environment variable that sets the API protocol.
 	// Valid values are "https" and "http".
 	// No affect in unit test mode.
-	SdkProtocolKey = "SdkProtocol"
+	SdkProtocolKey = "SdkTestProtocol"
+
+	// SdkTestDebug is the environment variable that sets the debug mode.
+	// If set, the test suite prints the raw HTTP request bodies.
+	// Any value works.
+	SdkDebugKey = "SdkTestDebug"
 
 	DefaultMode     = "integration"
-	DefaultHost     = "localhost:8443"
-	DefaultKey      = "change-me"
+	DefaultKey      = "localhost:8443:change-me"
 	DefaultProtocol = "https"
 )
 
@@ -102,22 +101,14 @@ func makeClient() *api.Client {
 		mode = DefaultMode
 	}
 
-	if mode != "integration" && mode != "unit" {
-		panic("Unsupported test mode " + mode)
-	}
+	var client *api.Client
 
 	if mode == "unit" {
 		panic("Unit test mode is not supported yet")
-	}
 
-	if mode == "integration" {
-		host, hostSet := os.LookupEnv(SdkTestHost)
+	} else if mode == "integration" {
 		key, keySet := os.LookupEnv(SdkTestKey)
 		protocol, protocolSet := os.LookupEnv(SdkProtocolKey)
-
-		if !hostSet {
-			host = DefaultHost
-		}
 
 		if !keySet {
 			key = DefaultKey
@@ -128,15 +119,27 @@ func makeClient() *api.Client {
 		}
 
 		if protocol == "https" {
-			return api.NewApiKeyClient(host, key, true, false)
+			client = api.NewApiKeyClient(key, api.InsecureNoSSLVerification())
 		} else if protocol == "http" {
-			return api.NewApiKeyClient(host, key, true, true)
+			client = api.NewApiKeyClient(key, api.InsecureNoSSLVerification(), api.InsecureUsePlaintext())
 		} else {
 			panic("Protocol must be http or https, was " + protocol)
 		}
+
+	} else {
+		panic("Unsupported test mode " + mode)
 	}
 
-	return nil
+	_, debug := os.LookupEnv(SdkDebugKey)
+	if debug {
+		innerT := client.Client.Transport
+		debugT := &api.DebugTransport{Transport: innerT}
+
+		client.Client = debugT.Client()
+		client.Sling = client.Sling.Client(client.Client)
+	}
+
+	return client
 }
 
 // Re-use state: clients are safe for concurrent use and are stateless.
@@ -145,6 +148,13 @@ var client *api.Client
 
 // Setup prepares the fixture with SDK client state. Runs once per test.
 func (t *F) Setup() {
+
+	// Use custom fork of gunit to specify which assertions should result in the test failing immediately.
+	// This prevents predictable, useless stack traces from trying to access bad data during an assertion.
+	t.AddFatalAssertion(ShouldBeNil)
+	t.AddFatalAssertion(ShouldNotBeNil)
+	t.AddFatalAssertion(ShouldHaveLength)
+
 	once.Do(func() {
 		client = makeClient()
 	})

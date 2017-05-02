@@ -1,22 +1,19 @@
 imports:
 - name: github.com/dghubble/sling
-  version: eb56e89ac5088bebb12eef3cb4b293300f43608b
+  version: bbfb8293bd33a6baad33d718aacf66ef73a29f30
 - name: github.com/google/go-querystring
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
   - query
+- name: github.com/smartystreets/gunit
+  version: 815a3e3b1664595af718cae573871739d883f8a0
+  repo: https://github.com/kofalt/gunit
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
-  subpackages:
-  - bson
-  - internal/json
-  - internal/sasl
-  - internal/scram
+  repo: https://github.com/go-mgo/mgo
 testImports:
 - name: github.com/smartystreets/assertions
-  version: 26acb9229f421449ac63d014995b282d59261a8b
+  version: c9ee7d9e9a2aeec0bee7c4a516f3e0ad7cb7e558
   subpackages:
   - internal/go-render/render
   - internal/oglematchers
-- name: github.com/smartystreets/gunit
-  version: 565762fde302ff41b49ec296a65a6a4add3c88d5

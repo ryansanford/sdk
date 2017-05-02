@@ -56,6 +56,12 @@ func (c *Client) GetSession(id string) (*Session, *http.Response, error) {
 	resp, err := c.New().Get("sessions/"+id).Receive(&session, &aerr)
 	return session, resp, Coalesce(err, aerr)
 }
+func (c *Client) GetSessionAcquisitions(id string) ([]*Acquisition, *http.Response, error) {
+	var aerr *Error
+	var acquisitions []*Acquisition
+	resp, err := c.New().Get("sessions/"+id+"/acquisitions").Receive(&acquisitions, &aerr)
+	return acquisitions, resp, Coalesce(err, aerr)
+}
 
 func (c *Client) AddSession(session *Session) (string, *http.Response, error) {
 	var aerr *Error

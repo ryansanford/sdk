@@ -7,3 +7,4 @@
 # Ref comment in .circleci/config.yml
 /.glide/
 /.gimme/
+/glide

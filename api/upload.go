@@ -117,6 +117,7 @@ func (c *Client) sendUploadRequest(url string, reader io.ReadCloser, contentType
 		Body(reader).
 		Set("Content-Type", contentType).
 		Request()
+
 	if err != nil {
 		return nil, err
 	}

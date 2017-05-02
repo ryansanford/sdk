@@ -50,7 +50,7 @@ func main() {
 	Println("Test user inserted.")
 
 	Println("Connecting to API...")
-	client := api.NewApiKeyClient("localhost:8080", "insecure-key", true, true)
+	client := api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification(), api.InsecureUsePlaintext())
 	user, _, err := client.GetCurrentUser()
 	if err != nil {	Fatalln(err) }
 

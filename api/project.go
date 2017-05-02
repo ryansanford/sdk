@@ -40,6 +40,13 @@ func (c *Client) GetProject(id string) (*Project, *http.Response, error) {
 	return project, resp, Coalesce(err, aerr)
 }
 
+func (c *Client) GetProjectSessions(id string) ([]*Session, *http.Response, error) {
+	var aerr *Error
+	var sessions []*Session
+	resp, err := c.New().Get("projects/"+id+"/sessions").Receive(&sessions, &aerr)
+	return sessions, resp, Coalesce(err, aerr)
+}
+
 func (c *Client) AddProject(project *Project) (string, *http.Response, error) {
 	var aerr *Error
 	var response *IdResponse
