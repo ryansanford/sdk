@@ -114,14 +114,26 @@ func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl
 
 		// Troublesome functions that need to either be fixed or ignored
 		blacklist := []string{
-			// unknown param types, needs mapping
-			"ModifyJob", "StartNextPendingJob", "ChangeJobState", "ProposeBatch",
+			// boolean parameter
+			"ModifyJob",
 
-			// array typing
+			// variadic string array
+			"StartNextPendingJob",
+
+			// JobState enum
+			"ChangeJobState",
+
+			// map string -> interface
+			"ProposeBatch",
+
+			// api.JobLogStatement instead of []*JobLogStatement
 			"AddJobLogs",
 
-			// using unknown as variable name
-			"GetGearInvocation", "CancelBatch",
+			// Doesn't detect int return
+			"CancelBatch",
+
+			// Doesn't detect map[string]interface{} return
+			"GetGearInvocation",
 		}
 		if stringInSlice(name, blacklist) {
 			return false

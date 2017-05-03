@@ -1,19 +1,16 @@
 # Cross-compilation bridge
 
-This folder holds the tools to cross-compile the SDK to other languages.
+This folder holds the tooling required to cross-compile the SDK into other languages. Implementation status for each language is tracked in the main project readme.
 
 ## Building the bridge
 
+From the current folder:
+
 ```
-cd bridge
-
-../make.sh
-eval $(../make.sh env)
-
-go run generate/lex.go
-
-go install -v flywheel.io/sdk/bridge && go build -v -buildmode=c-shared -o flywheel.so flywheel.io/sdk/bridge
+./make.sh
 ```
+
+This will build the SDK, confirm the generated bridge is valid, and compile the C header files along with any other language frontends.
 
 ## Developer notes
 
