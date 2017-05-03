@@ -87,6 +87,12 @@ func Free(pointer *C.char) {
 	// C.free(unsafe.Pointer(pointer))
 }
 
+//export TestBridge
+func TestBridge(name *C.char) *C.char {
+	nameGo := C.GoString(name)
+	return C.CString("Hello " + nameGo)
+}
+
 //
 // -- AUTO GENERATED CODE FOLLOWS --
 //

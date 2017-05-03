@@ -44,6 +44,15 @@ def _byteify(data, ignore_dicts = False):
 # End block to handle unicode in JSON
 #
 
+def test_bridge(name):
+	"""
+	Test if the C bridge is functional.
+	Should return "Hello <name>".
+	"""
+
+	pointer = bridge.TestBridge(name)
+	return ctypes.c_char_p(pointer).value
+
 class FlywheelException(Exception):
 	pass
 
