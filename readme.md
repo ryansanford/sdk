@@ -13,6 +13,8 @@ ln -s workspace/src/flywheel.io/sdk sdk
 ./sdk/make.sh
 ```
 
+For other languages, check out the [bridge readme](bridge).
+
 ## Testing
 
 Three environment variables control the test suite:
