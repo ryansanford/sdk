@@ -7,7 +7,7 @@ A golang SDK for interaction with a remote Flywheel instance.
 ## Building
 
 ```bash
-git clone https://github.com/flywheel-io/core-sdk workspace/src/flywheel.io/sdk
+git clone https://github.com/flywheel-io/sdk workspace/src/flywheel.io/sdk
 ln -s workspace/src/flywheel.io/sdk sdk
 
 ./sdk/make.sh
