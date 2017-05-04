@@ -3,9 +3,10 @@
 import ctypes
 import json
 import sys
+import os
 
 # Load the shared object file. Further details are added at the end of the file
-bridge = ctypes.cdll.LoadLibrary('../c/flywheel.so')
+bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheel.so'))
 
 #
 # Begin block to handle unicode in JSON
