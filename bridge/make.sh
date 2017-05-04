@@ -13,7 +13,7 @@ mkdir -p compiled compiled/c
 eval $(../make.sh env)
 
 # Generate the go bridge and clients
-go run generate/lex.go
+go run generate/*.go
 
 # Ensure the go bridge is valid
 go install -v flywheel.io/sdk/bridge

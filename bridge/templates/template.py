@@ -4,6 +4,7 @@ import ctypes
 import json
 import sys
 
+# Load the shared object file. Further details are added at the end of the file
 bridge = ctypes.cdll.LoadLibrary('../c/flywheel.so')
 
 #
@@ -68,8 +69,9 @@ class Flywheel:
 		self.keyC = ctypes.create_string_buffer(key)
 
 	@staticmethod
-	def _handle_return(status, payload):
+	def _handle_return(status, pointer):
 		statusCode = status.value
+		payload = ctypes.cast(pointer, ctypes.c_char_p).value
 
 		if statusCode == 0 and payload is None:
 			return None
@@ -88,3 +90,14 @@ class Flywheel:
 	# AUTO GENERATED CODE FOLLOWS
 	#
 
+	{{range .Signatures}}
+	def {{.Name}}(self{{range .Params}}, {{.Name}}{{end}}):
+		status = ctypes.c_int(-100)
+		pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}{{.Name}}, {{end}}ctypes.byref(status))
+		return self._handle_return(status, pointer)
+	{{end}}
+
+# Every bridge function returns a char*.
+# Manually informing ctypes of this prevents a segmentation fault on OSX.
+{{range .Signatures}}bridge.{{.Name}}.restype = ctypes.POINTER(ctypes.c_char)
+{{end}}
