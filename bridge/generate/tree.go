@@ -88,5 +88,3 @@ func isErrorExpr(ex ast.Expr) bool {
 	ident, ok := ex.(*ast.Ident)
 	return ok && ident.Name == "error"
 }
-
-

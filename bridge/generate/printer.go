@@ -6,7 +6,6 @@ import (
 	"text/template"
 )
 
-
 // Printer specifies a struct that can generate an SDK frontend.
 type Printer interface {
 
@@ -22,7 +21,7 @@ type Printer interface {
 
 // BasicPrinter reads a single template and prints to a single file.
 type BasicPrinter struct {
-	name string
+	name         string
 	templatePath string
 	outputPath   string
 
@@ -31,6 +30,14 @@ type BasicPrinter struct {
 }
 
 var _ Printer = (*BasicPrinter)(nil)
+
+func NewBasicPrinter(name, templatePath, outputPath string) Printer {
+	return &BasicPrinter{
+		name:         name,
+		templatePath: templatePath,
+		outputPath:   outputPath,
+	}
+}
 
 func (p *BasicPrinter) Name() string {
 	return p.name

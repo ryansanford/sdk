@@ -113,7 +113,6 @@ func GenerateSignatures(path string) (*token.FileSet, *ParsedSignatures) {
 	return fset, psigs
 }
 
-
 // Scan & parse a package of source code and return the set of function signatures we want to compile.
 func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl) {
 	fset := token.NewFileSet()
