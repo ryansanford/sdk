@@ -53,7 +53,8 @@ def test_bridge(name):
 	"""
 
 	pointer = bridge.TestBridge(name)
-	return ctypes.c_char_p(pointer).value
+	payload = ctypes.cast(pointer, ctypes.c_char_p).value
+	return payload
 
 class FlywheelException(Exception):
 	pass
@@ -100,5 +101,10 @@ class Flywheel:
 
 # Every bridge function returns a char*.
 # Manually informing ctypes of this prevents a segmentation fault on OSX.
+
+# Manual functions
+bridge.TestBridge.restype = ctypes.POINTER(ctypes.c_char)
+
+# API client functions
 {{range .Signatures}}bridge.{{.Name}}.restype = ctypes.POINTER(ctypes.c_char)
 {{end}}
