@@ -93,7 +93,7 @@ class Flywheel:
 	#
 
 	{{range .Signatures}}
-	def {{.Name}}(self{{range .Params}}, {{.Name}}{{end}}):
+	def {{camel2snake .Name}}(self{{range .Params}}, {{.Name}}{{end}}):
 		status = ctypes.c_int(-100)
 		pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}{{.Name}}, {{end}}ctypes.byref(status))
 		return self._handle_return(status, pointer)

@@ -47,10 +47,13 @@ func (p *BasicPrinter) Init() {
 	templateBytes, err := ioutil.ReadFile(p.templatePath)
 	check(err)
 
-	parsedTemplate, err := template.New("printerTemplate").Parse(string(templateBytes))
+	temp, err := template.
+		New("printerTemplate").
+		Funcs(textRules).        // load rules defined in rules.go
+		Parse(string(templateBytes))
 	check(err)
 
-	p.template = parsedTemplate
+	p.template = temp
 }
 
 func (p *BasicPrinter) Print(sigs *ParsedSignatures) {
