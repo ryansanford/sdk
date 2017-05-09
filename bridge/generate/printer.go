@@ -49,7 +49,7 @@ func (p *BasicPrinter) Init() {
 
 	temp, err := template.
 		New("printerTemplate").
-		Funcs(textRules).        // load rules defined in rules.go
+		Funcs(textRules). // load rules defined in rules.go
 		Parse(string(templateBytes))
 	check(err)
 
