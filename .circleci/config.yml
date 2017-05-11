@@ -3,10 +3,12 @@ version: 2
 jobs:
     build:
         # The local circleci binary does not support relative directories.
+        # They plan to remove this limitation in the future.
+        # Ref: https://circleci.com/docs/2.0/local-jobs/#relative-path-for-workingdirectory
         working_directory: "/workspace/src/flywheel.io/sdk"
 
         docker:
-            - image: buildpack-deps:zesty-scm
+            - image: buildpack-deps:zesty
               environment:
                 # These make local builds faster by virtue of the source directory mount.
                 # Would be better to get caching in the local build environment and remove this section.
@@ -79,18 +81,27 @@ jobs:
 
             - run:
                 name: Build SDK
-                command: ./make.sh cross
+                command: ./bridge/make.sh
+
+            # SDK will not support plaintext transport
+            # - run:
+            #     name: Test drive python frontend
+            #     command: python test-drive.py
+            #     working_directory: /workspace/src/flywheel.io/sdk/bridge/compiled/python
+            #     environment:
+            #       SdkTestKey: "localhost:8080:insecure-key"
 
             - run:
                 name: Cleanup
                 command: rm -rf /workspace/bin/glide /workspace/bin/sdk
+                when: always
 
             - store_artifacts:
                 path: "/workspace/bin"
                 destination: build
 
             - store_artifacts:
-                path: "/workspace/src/flywheel.io/sdk/bridge/results"
+                path: "/workspace/src/flywheel.io/sdk/bridge/compiled"
                 destination: bridge
 
             # - store_test_results:

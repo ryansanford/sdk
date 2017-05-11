@@ -134,3 +134,30 @@ func (c *Client) UploadToProject(id string, files ...*UploadSource) (chan int64,
 	url := "projects/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
 }
+
+func (c *Client) DownloadFromProject(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
+	url := "projects/" + id + "/files/" + filename
+	return c.DownloadSimple(url, destination)
+}
+
+// No progress reporting
+func (c *Client) UploadFileToProject(id string, path string) error {
+	src := CreateUploadSourceFromFilenames(path)
+	progress, result := c.UploadToProject(id, src...)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}
+
+// No progress reporting
+func (c *Client) DownloadFileFromProject(id, name string, path string) error {
+	src := CreateDownloadSourceFromFilename(path)
+	progress, result := c.DownloadFromProject(id, name, src)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}

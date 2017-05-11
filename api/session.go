@@ -150,3 +150,30 @@ func (c *Client) UploadToSession(id string, files ...*UploadSource) (chan int64,
 	url := "sessions/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
 }
+
+func (c *Client) DownloadFromSession(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
+	url := "sessions/" + id + "/files/" + filename
+	return c.DownloadSimple(url, destination)
+}
+
+// No progress reporting
+func (c *Client) UploadFileToSession(id string, path string) error {
+	src := CreateUploadSourceFromFilenames(path)
+	progress, result := c.UploadToSession(id, src...)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}
+
+// No progress reporting
+func (c *Client) DownloadFileFromSession(id, name string, path string) error {
+	src := CreateDownloadSourceFromFilename(path)
+	progress, result := c.DownloadFromSession(id, name, src)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}

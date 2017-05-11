@@ -15,8 +15,8 @@ import (
 
 // UploadSource represents one file to upload.
 //
-// It is only valid to set one of (Reader, Filepath).
-// If Filepath is set, it will be read off disk using os.Open.
+// It is only valid to set one of (Reader, Path).
+// If Path is set, it will be read off disk using os.Open.
 //
 // If Name is not set, then filepath.Base(Path) will be used.
 type UploadSource struct {

@@ -95,7 +95,9 @@ class Flywheel:
 	{{range .Signatures}}
 	def {{camel2snake .Name}}(self{{range .Params}}, {{.Name}}{{end}}):
 		status = ctypes.c_int(-100)
-		pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}{{.Name}}, {{end}}ctypes.byref(status))
+		{{if ne .ParamDataName ""}}marshalled_{{.ParamDataName}} = json.dumps({{.ParamDataName}})
+		{{end}}
+		pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}{{if eq .Type "data"}}marshalled_{{end}}{{.Name}}, {{end}}ctypes.byref(status))
 		return self._handle_return(status, pointer)
 	{{end}}
 

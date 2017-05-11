@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"strings"
@@ -86,6 +87,24 @@ func UploadSourceFromString(name, src string) *api.UploadSource {
 	return &api.UploadSource{
 		Reader: ioutil.NopCloser(bytes.NewBufferString(src)),
 		Name:   name,
+	}
+}
+
+// Buffer does not implement close; ioutil does not implement NopWriteCloser
+type nopWriteCloser struct {
+	io.Writer
+}
+
+func (nopWriteCloser) Close() error { return nil }
+func NopWriteCloser(w io.Writer) io.WriteCloser {
+	return nopWriteCloser{w}
+}
+
+func DownloadSourceToBuffer() (*bytes.Buffer, *api.DownloadSource) {
+	buffer := new(bytes.Buffer)
+
+	return buffer, &api.DownloadSource{
+		Writer: NopWriteCloser(buffer),
 	}
 }
 

@@ -167,11 +167,6 @@ func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl
 			return true
 		}
 
-		// Blacklist file I/O
-		if strings.Contains(name, "Upload") || strings.Contains(name, "Download") {
-			return false
-		}
-
 		// Troublesome functions that need to either be fixed or ignored
 		blacklist := []string{
 			// boolean parameter
@@ -194,6 +189,18 @@ func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl
 
 			// Doesn't detect map[string]interface{} return
 			"GetGearInvocation",
+
+			// Progress reporting
+			"Upload",
+			"UploadSimple",
+			"UploadToProject",
+			"UploadToSession",
+			"UploadToAcquisition",
+			"Download",
+			"DownloadSimple",
+			"DownloadFromProject",
+			"DownloadFromSession",
+			"DownloadFromAcquisition",
 		}
 		if stringInSlice(name, blacklist) {
 			return false

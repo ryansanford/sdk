@@ -54,8 +54,8 @@ Create container                                 | X       | X      | X
 Get container                                    | X       | X      | X
 Modify container                                 | X       | X      | X
 Delete container                                 | X       | X      | X
-Upload file to container                         | X       |        |
-Download file from container                     |         |        |
+Upload file to container                         | X       | X      | X
+Download file from container                     | X       | X      | X
 Get jobs that involve container                  |         |        |
 Support for collections                          |         |        |
 Support for analyses                             |         |        |

@@ -76,7 +76,7 @@ func (t *F) TestAcquisitions() {
 	t.So(acquisitions, ShouldNotContain, rAcquisition)
 }
 
-func (t *F) SkipTestAcquisitionUpload() {
+func (t *F) SkipTestAcquisitionFiles() {
 	_, _, sessionId := t.createTestSession()
 
 	acquisition := &api.Acquisition{Name: RandString(), SessionId: sessionId}
@@ -96,6 +96,15 @@ func (t *F) SkipTestAcquisitionUpload() {
 	t.So(rAcquisition.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rAcquisition.Files[0].Size, ShouldEqual, 42)
 	t.So(rAcquisition.Files[0].Mimetype, ShouldEqual, "text/plain")
+
+	// Download the same file
+	buffer, dest := DownloadSourceToBuffer()
+	progress, resultChan = t.DownloadFromAcquisition(acquisitionId, "yeats.txt", dest)
+
+	// Last update should be the full string length.
+	t.checkProgressChanEndsWith(progress, 42)
+	t.So(<-resultChan, ShouldBeNil)
+	t.So(buffer.String(), ShouldEqual, "Things fall apart; the centre cannot hold;")
 }
 
 func (t *F) createTestAcquisition() (string, string, string, string) {
