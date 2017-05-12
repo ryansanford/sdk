@@ -23,7 +23,7 @@ localOs=$( uname -s | tr '[:upper:]' '[:lower:]' )
 # Load GNU coreutils on OSX
 if [[ "$localOs" == "darwin" ]]; then
 	# Check requirements: g-prefixed commands are available if brew packages are installed.
-	which brew gsort gsed gfind > /dev/null || fatal "On OSX, homebrew is required. Install from http://brew.sh\nThen, run 'brew install bash coreutils findutils gnu-sed' to install the necessary tools."
+	hash brew gsort gsed gfind 2>/dev/null || fatal "On OSX, homebrew is required. Install from http://brew.sh\nThen, run 'brew install bash coreutils findutils gnu-sed' to install the necessary tools."
 
 	# Load GNU coreutils, findutils, and sed into path
 	suffix="libexec/gnubin"
@@ -143,8 +143,8 @@ cross() {
 
 	# For release builds, detect useful information about the build.
 	# Fails safely & silently. Declare & use these strings in your main!
-	BuildHash=$( which git  > /dev/null && git rev-parse --short HEAD 2> /dev/null || echo "unknown" )
-	BuildDate=$( which date > /dev/null && date "+%Y-%m-%d %H:%M"     2> /dev/null || echo "unknown" )
+	BuildHash=$( hash git  2> /dev/null && git rev-parse --short HEAD 2>/dev/null || echo "unknown" )
+	BuildDate=$( hash date 2> /dev/null && date "+%Y-%m-%d %H:%M"     2>/dev/null || echo "unknown" )
 	# Datestamp is ISO 8601-ish, without seconds or timezones.
 
 	for target in "${targets[@]}"; do
@@ -169,7 +169,7 @@ cross() {
 			fi
 
 			binary=$( find "$path" -maxdepth 1 | grep -E "${pkg##*/}(\.exe)*" | head -n 1 )
-			which upx > /dev/null && nice upx -q "$binary" 2>&1 | grep -- "->" || true
+			hash upx 2>/dev/null && nice upx -q "$binary" 2>&1 | grep -- "->" || true
 		fi
 
 		# If this system is the current build target, copy the binary to a build folder.
@@ -183,7 +183,7 @@ cross() {
 		fi
 	done
 
-	which upx > /dev/null || ( echo "UPX is not installed; did not compress binaries." )
+	hash upx 2>/dev/null || ( echo "UPX is not installed; did not compress binaries." )
 }
 
 prepareCrossBuild() {
