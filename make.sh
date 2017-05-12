@@ -147,6 +147,26 @@ cross() {
 	BuildDate=$( hash date 2> /dev/null && date "+%Y-%m-%d %H:%M"     2>/dev/null || echo "unknown" )
 	# Datestamp is ISO 8601-ish, without seconds or timezones.
 
+	# Versions of UPX prior to 3.92 had compatibility issues with OSX 10.12 Sierra.
+	# Don't compress the binaries unless UPX is present and new enough.
+	#
+	# https://upx.github.io/upx-news.txt
+	# https://apple.stackexchange.com/questions/251808/this-upx-compressed-binary-contains-an-invalid-mach-o-header-and-cannot-be-load
+	minUPXv="3.92"
+	useUPX=false
+
+	# Check UPX version
+	if hash upx 2>/dev/null; then
+		currentUPXv=$(upx --version | head -n 1 | cut -f 2 -d ' ')
+		floorVersion=$(echo -e "$minUPXv\n$currentUPXv" | sort -V | head -n 1)
+
+		if [[ $minUPXv == $floorVersion ]]; then
+			useUPX=true
+		else
+			echo "Warning: your UPX version is too old and cannot compress OSX binaries correctly. Disabling."
+		fi
+	fi
+
 	for target in "${targets[@]}"; do
 
 		# Split target on slash to get operating system & architecture
@@ -156,12 +176,8 @@ cross() {
 		echo -e "\n-- Building $os $arch --"
 		GOOS=$os GOARCH=$arch build "$package" "-X main.BuildHash=$BuildHash -X 'main.BuildDate=$BuildDate'"
 
-		# Versions of UPX prior to 3.92 had compatibility issues with OSX 10.12 Sierra.
-		# Could augment this with a UPX version check, and compress if local UPX is modern enough.
-		#
-		# https://upx.github.io/upx-news.txt
-		# https://apple.stackexchange.com/questions/251808/this-upx-compressed-binary-contains-an-invalid-mach-o-header-and-cannot-be-load
-		if [[ "$os" != "darwin" ]]; then
+
+		if $useUPX; then
 			if [[ "$localOs" == "$os" && "$arch" =~ .*$localArch ]] ; then
 				path="$GOPATH/bin/"
 			else
@@ -169,7 +185,7 @@ cross() {
 			fi
 
 			binary=$( find "$path" -maxdepth 1 | grep -E "${pkg##*/}(\.exe)*" | head -n 1 )
-			hash upx 2>/dev/null && nice upx -q "$binary" 2>&1 | grep -- "->" || true
+			nice upx -q "$binary" 2>&1 | grep -- "->" || true
 		fi
 
 		# If this system is the current build target, copy the binary to a build folder.
