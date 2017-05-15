@@ -5,6 +5,9 @@ import json
 import sys
 import os
 
+if sys.version_info[0] > 2:
+    raise ImportError('flywheel requires Python 2')
+
 # Load the shared object file. Further details are added at the end of the file
 bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheel.so'))
 
