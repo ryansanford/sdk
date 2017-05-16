@@ -56,6 +56,12 @@ func (c *Client) GetSession(id string) (*Session, *http.Response, error) {
 	resp, err := c.New().Get("sessions/"+id).Receive(&session, &aerr)
 	return session, resp, Coalesce(err, aerr)
 }
+func (c *Client) GetSessionAcquisitions(id string) ([]*Acquisition, *http.Response, error) {
+	var aerr *Error
+	var acquisitions []*Acquisition
+	resp, err := c.New().Get("sessions/"+id+"/acquisitions").Receive(&acquisitions, &aerr)
+	return acquisitions, resp, Coalesce(err, aerr)
+}
 
 func (c *Client) AddSession(session *Session) (string, *http.Response, error) {
 	var aerr *Error
@@ -143,4 +149,31 @@ func (c *Client) DeleteSession(id string) (*http.Response, error) {
 func (c *Client) UploadToSession(id string, files ...*UploadSource) (chan int64, chan error) {
 	url := "sessions/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
+}
+
+func (c *Client) DownloadFromSession(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
+	url := "sessions/" + id + "/files/" + filename
+	return c.DownloadSimple(url, destination)
+}
+
+// No progress reporting
+func (c *Client) UploadFileToSession(id string, path string) error {
+	src := CreateUploadSourceFromFilenames(path)
+	progress, result := c.UploadToSession(id, src...)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}
+
+// No progress reporting
+func (c *Client) DownloadFileFromSession(id, name string, path string) error {
+	src := CreateDownloadSourceFromFilename(path)
+	progress, result := c.DownloadFromSession(id, name, src)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
 }

@@ -89,7 +89,7 @@ func (t *F) TestProjects() {
 	t.So(projects, ShouldNotContain, rProject)
 }
 
-func (t *F) TestProjectUpload() {
+func (t *F) SkipTestProjectFiles() {
 	groupId := t.createTestGroup()
 
 	project := &api.Project{Name: RandString(), GroupId: groupId}
@@ -109,6 +109,15 @@ func (t *F) TestProjectUpload() {
 	t.So(rProject.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rProject.Files[0].Size, ShouldEqual, 45)
 	t.So(rProject.Files[0].Mimetype, ShouldEqual, "text/plain")
+
+	// Download the same file
+	buffer, dest := DownloadSourceToBuffer()
+	progress, resultChan = t.DownloadFromProject(projectId, "yeats.txt", dest)
+
+	// Last update should be the full string length.
+	t.checkProgressChanEndsWith(progress, 45)
+	t.So(<-resultChan, ShouldBeNil)
+	t.So(buffer.String(), ShouldEqual, "The best lack all conviction, while the worst")
 }
 
 func (t *F) createTestProject() (string, string) {

@@ -3,10 +3,12 @@ version: 2
 jobs:
     build:
         # The local circleci binary does not support relative directories.
+        # They plan to remove this limitation in the future.
+        # Ref: https://circleci.com/docs/2.0/local-jobs/#relative-path-for-workingdirectory
         working_directory: "/workspace/src/flywheel.io/sdk"
 
         docker:
-            - image: buildpack-deps:zesty-scm
+            - image: buildpack-deps:zesty
               environment:
                 # These make local builds faster by virtue of the source directory mount.
                 # Would be better to get caching in the local build environment and remove this section.
@@ -30,6 +32,12 @@ jobs:
 
             - restore_cache:
                 key: sdk-golang-1-{{ checksum "make.sh"}}-{{ checksum "glide.lock" }}
+
+            # This is a hack to prevent downloading glide on every file change when iterating.
+            # Disable before pushing :/
+            # - run:
+            #     name: Hack
+            #     command: mkdir -p /workspace/bin/ && cp ./glide /workspace/bin/glide
 
             - run:
                 name: Install Dependencies
@@ -60,21 +68,41 @@ jobs:
 
             - run:
                 name: Integration Tests
-                # command: ./make.sh test
-                command: ./make.sh test -run TestSuite/TestGetConfig
+                command: ./make.sh test
                 environment:
-                  SdkTestMode: "integration"
-                  SdkTestHost: "localhost:8080"
-                  SdkTestKey:  "insecure-key"
-                  SdkProtocol: "http"
+                  SdkTestMode:     "integration"
+                  SdkTestKey:      "localhost:8080:insecure-key"
+                  SdkTestProtocol: "http"
+
+            - run:
+                name: Triage environment
+                command: ./make.sh go run .circleci/triage-environment.go
+                when: on_fail
+
+            - run:
+                name: Build SDK
+                command: ./bridge/make.sh
+
+            # SDK will not support plaintext transport
+            # - run:
+            #     name: Test drive python frontend
+            #     command: python test-drive.py
+            #     working_directory: /workspace/src/flywheel.io/sdk/bridge/compiled/python
+            #     environment:
+            #       SdkTestKey: "localhost:8080:insecure-key"
 
             - run:
                 name: Cleanup
                 command: rm -rf /workspace/bin/glide /workspace/bin/sdk
+                when: always
 
             - store_artifacts:
                 path: "/workspace/bin"
                 destination: build
 
-# - store_test_results:
-#     path: test-reports/
+            - store_artifacts:
+                path: "/workspace/src/flywheel.io/sdk/bridge/compiled"
+                destination: bridge
+
+            # - store_test_results:
+            #     path: test-reports/

@@ -40,6 +40,13 @@ func (c *Client) GetProject(id string) (*Project, *http.Response, error) {
 	return project, resp, Coalesce(err, aerr)
 }
 
+func (c *Client) GetProjectSessions(id string) ([]*Session, *http.Response, error) {
+	var aerr *Error
+	var sessions []*Session
+	resp, err := c.New().Get("projects/"+id+"/sessions").Receive(&sessions, &aerr)
+	return sessions, resp, Coalesce(err, aerr)
+}
+
 func (c *Client) AddProject(project *Project) (string, *http.Response, error) {
 	var aerr *Error
 	var response *IdResponse
@@ -126,4 +133,31 @@ func (c *Client) DeleteProject(id string) (*http.Response, error) {
 func (c *Client) UploadToProject(id string, files ...*UploadSource) (chan int64, chan error) {
 	url := "projects/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
+}
+
+func (c *Client) DownloadFromProject(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
+	url := "projects/" + id + "/files/" + filename
+	return c.DownloadSimple(url, destination)
+}
+
+// No progress reporting
+func (c *Client) UploadFileToProject(id string, path string) error {
+	src := CreateUploadSourceFromFilenames(path)
+	progress, result := c.UploadToProject(id, src...)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}
+
+// No progress reporting
+func (c *Client) DownloadFileFromProject(id, name string, path string) error {
+	src := CreateDownloadSourceFromFilename(path)
+	progress, result := c.DownloadFromProject(id, name, src)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
 }

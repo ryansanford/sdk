@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	. "fmt"
+	"fmt"
 	"strconv"
 )
 
@@ -36,5 +36,9 @@ func Format(x interface{}) string {
 }
 
 func PrintFormat(x interface{}) {
-	Println(Format(x))
+	fmt.Println(Format(x))
+}
+
+func Println(a ...interface{}) {
+	fmt.Println(a...)
 }

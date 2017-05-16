@@ -97,7 +97,7 @@ func (t *F) TestSessions() {
 	t.So(sessions, ShouldNotContain, rSession)
 }
 
-func (t *F) TestSessionUpload() {
+func (t *F) SkipTestSessionFiles() {
 	_, projectId := t.createTestProject()
 	session := &api.Session{Name: RandString(), ProjectId: projectId}
 	sessionId, _, err := t.AddSession(session)
@@ -112,9 +112,19 @@ func (t *F) TestSessionUpload() {
 
 	rSession, _, err := t.GetSession(sessionId)
 	t.So(err, ShouldBeNil)
+	t.So(rSession.Files, ShouldHaveLength, 1)
 	t.So(rSession.Files[0].Name, ShouldEqual, "yeats.txt")
 	t.So(rSession.Files[0].Size, ShouldEqual, 33)
 	t.So(rSession.Files[0].Mimetype, ShouldEqual, "text/plain")
+
+	// Download the same file
+	buffer, dest := DownloadSourceToBuffer()
+	progress, resultChan = t.DownloadFromSession(sessionId, "yeats.txt", dest)
+
+	// Last update should be the full string length.
+	t.checkProgressChanEndsWith(progress, 33)
+	t.So(<-resultChan, ShouldBeNil)
+	t.So(buffer.String(), ShouldEqual, "Are full of passionate intensity.")
 }
 
 func (t *F) createTestSession() (string, string, string) {

@@ -129,3 +129,30 @@ func (c *Client) UploadToAcquisition(id string, files ...*UploadSource) (chan in
 	url := "acquisitions/" + id + "/files"
 	return c.UploadSimple(url, nil, files...)
 }
+
+func (c *Client) DownloadFromAcquisition(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
+	url := "acquisitions/" + id + "/files/" + filename
+	return c.DownloadSimple(url, destination)
+}
+
+// No progress reporting
+func (c *Client) UploadFileToAcquisition(id string, path string) error {
+	src := CreateUploadSourceFromFilenames(path)
+	progress, result := c.UploadToAcquisition(id, src...)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}
+
+// No progress reporting
+func (c *Client) DownloadFileFromAcquisition(id, name string, path string) error {
+	src := CreateDownloadSourceFromFilename(path)
+	progress, result := c.DownloadFromAcquisition(id, name, src)
+
+	// drain and report
+	for range progress {
+	}
+	return <-result
+}

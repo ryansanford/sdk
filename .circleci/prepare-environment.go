@@ -15,6 +15,7 @@ func main() {
 	var err error
 
 	for i := 1; i <= 5; i++ {
+		err = nil
 		Println("Connecting to mongo...")
 		wait := time.Duration(float64(i) * 0.3 * float64(time.Second))
 		session, err = mgo.DialWithTimeout("localhost", wait)
@@ -50,7 +51,7 @@ func main() {
 	Println("Test user inserted.")
 
 	Println("Connecting to API...")
-	client := api.NewApiKeyClient("localhost:8080", "insecure-key", true, true)
+	client := api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification(), api.InsecureUsePlaintext())
 	user, _, err := client.GetCurrentUser()
 	if err != nil {	Fatalln(err) }
 
