@@ -2,7 +2,7 @@
 
 A golang SDK for interaction with a remote Flywheel instance.
 
-[![Build status](https://circleci.com/gh/flywheel-io/core-sdk/tree/master.svg?style=shield)](https://circleci.com/gh/flywheel-io/core-sdk)
+[![Build status](https://circleci.com/gh/flywheel-io/sdk/tree/master.svg?style=shield)](https://circleci.com/gh/flywheel-io/sdk)
 
 ## Building
 
