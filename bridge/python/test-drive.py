@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
 import os
 import random
 import string
@@ -10,14 +14,18 @@ def rand_string():
 
 
 # Check that data can flow back & forth across the bridge
-bridge_response = flywheel.test_bridge("world")
-assert bridge_response == "Hello world"
+bridge_response = flywheel.test_bridge('world')
+assert bridge_response == 'Hello world'
 
 # Get API get from environment
 api_key = os.environ['SdkTestKey']
 
 # Create client
 fw = flywheel.Flywheel(api_key)
+
+# A test file
+filepath = __file__
+filename = os.path.basename(filepath)
 
 
 #
@@ -78,14 +86,14 @@ fw.add_project_note(projectId, 'This is a note')
 projects = fw.get_all_projects()
 assert len(projects) > 0
 
-fw.upload_file_to_project(projectId, 'test-drive.py')
-fw.download_file_from_project(projectId, 'test-drive.py', '/tmp/download.py')
+fw.upload_file_to_project(projectId, filepath)
+fw.download_file_from_project(projectId, filename, '/tmp/download.py')
 
 project = fw.get_project(projectId)
 assert project['tags'][0] == 'blue'
 assert project['label'] == 'testdrive'
 assert project['notes'][0]['text'] == 'This is a note'
-assert project['files'][0]['name'] == 'test-drive.py'
+assert project['files'][0]['name'] == filename
 assert project['files'][0]['size'] == os.path.getsize('/tmp/download.py')
 
 
@@ -107,14 +115,14 @@ assert len(sessions) > 0
 sessions = fw.get_all_sessions()
 assert len(sessions) > 0
 
-fw.upload_file_to_session(sessionId, 'test-drive.py')
-fw.download_file_from_session(sessionId, 'test-drive.py', '/tmp/download2.py')
+fw.upload_file_to_session(sessionId, filepath)
+fw.download_file_from_session(sessionId, filename, '/tmp/download2.py')
 
 session = fw.get_session(sessionId)
 assert session['tags'][0] == 'blue'
 assert session['label'] == 'testdrive'
 assert session['notes'][0]['text'] == 'This is a note'
-assert session['files'][0]['name'] == 'test-drive.py'
+assert session['files'][0]['name'] == filename
 assert session['files'][0]['size'] == os.path.getsize('/tmp/download2.py')
 
 
@@ -136,14 +144,14 @@ assert len(acqs) > 0
 acqs = fw.get_all_acquisitions()
 assert len(acqs) > 0
 
-fw.upload_file_to_acquisition(acqId, 'test-drive.py')
-fw.download_file_from_acquisition(acqId, 'test-drive.py', '/tmp/download3.py')
+fw.upload_file_to_acquisition(acqId, filepath)
+fw.download_file_from_acquisition(acqId, filename, '/tmp/download3.py')
 
 acq = fw.get_acquisition(acqId)
 assert acq['tags'][0] == 'blue'
 assert acq['label'] == 'testdrive'
 assert acq['notes'][0]['text'] == 'This is a note'
-assert acq['files'][0]['name'] == 'test-drive.py'
+assert acq['files'][0]['name'] == filename
 assert acq['files'][0]['size'] == os.path.getsize('/tmp/download3.py')
 
 
@@ -165,5 +173,5 @@ fw.delete_session(sessionId)
 fw.delete_project(projectId)
 fw.delete_group(groupId)
 
-print ''
-print 'Test drive complete.'
+print('')
+print('Test drive complete.')
