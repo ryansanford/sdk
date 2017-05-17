@@ -5,9 +5,6 @@ import json
 import sys
 import os
 
-if sys.version_info[0] > 2:
-    raise ImportError('flywheel requires Python 2')
-
 # Load the shared object file. Further details are added at the end of the file
 bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheel.so'))
 
@@ -17,9 +14,9 @@ def test_bridge(name):
     Should return "Hello <name>".
     """
 
-    pointer = bridge.TestBridge(name)
+    pointer = bridge.TestBridge(bytes(name, 'utf-8'))
     payload = ctypes.cast(pointer, ctypes.c_char_p).value
-    return payload
+    return payload.decode('utf-8')
 
 class FlywheelException(Exception):
     pass
@@ -33,7 +30,7 @@ class Flywheel:
             raise FlywheelException('Invalid API key.')
 
         self.key = key
-        self.keyC = ctypes.create_string_buffer(key)
+        self.keyC = ctypes.create_string_buffer(bytes(key, 'utf-8'))
 
     @staticmethod
     def _handle_return(status, pointer):
@@ -62,7 +59,7 @@ class Flywheel:
         status = ctypes.c_int(-100)
         {{if ne .ParamDataName ""}}marshalled_{{.ParamDataName}} = json.dumps({{.ParamDataName}})
         {{end}}
-        pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}str({{if eq .Type "data"}}marshalled_{{end}}{{.Name}}), {{end}}ctypes.byref(status))
+        pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}bytes({{if eq .Type "data"}}marshalled_{{end}}{{.Name}}, 'utf-8'), {{end}}ctypes.byref(status))
         return self._handle_return(status, pointer)
     {{end}}
 
