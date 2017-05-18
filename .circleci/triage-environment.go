@@ -19,7 +19,7 @@ func main() {
 	var session *mgo.Session
 	var err error
 
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= 15; i++ {
 		log.Println("Connecting to mongo...")
 		wait := time.Duration(float64(i) * 0.3 * float64(time.Second))
 		session, err = mgo.DialWithTimeout("localhost", wait)
