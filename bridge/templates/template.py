@@ -34,6 +34,10 @@ class Flywheel:
         status_code = status.value
         value = ctypes.cast(pointer, ctypes.c_char_p).value
 
+        # In some variants of python 3, value will not be a string, and needs to be decoded
+        if not isinstance(value, str):
+            value = value.decode('utf-8')
+
         if status_code == 0 and value is None:
             return None
         elif status_code == 0:
