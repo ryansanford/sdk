@@ -34,6 +34,8 @@ func (t *F) TestGroups() {
 	// Get all
 	groups, _, err := t.GetAllGroups()
 	t.So(err, ShouldBeNil)
+	// workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check
+	savedGroup.Permissions = []*api.Permission{}
 	t.So(groups, ShouldContain, savedGroup)
 
 	// Modify

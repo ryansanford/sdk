@@ -16,9 +16,11 @@ eval $(../make.sh env)
 go run generate/*.go
 
 # Ensure the go bridge is valid
+echo
 go install -v flywheel.io/sdk/bridge
 
 # Generate the C bridge
+echo
 go build -v -buildmode=c-shared -o compiled/c/flywheel.so flywheel.io/sdk/bridge
 
 # Group artifacts together
