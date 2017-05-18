@@ -34,7 +34,16 @@ class Flywheel:
         status_code = status.value
         value = ctypes.cast(pointer, ctypes.c_char_p).value
 
-        # In some variants of python 3, value will not be a string, and needs to be decoded
+        # In python 2, the casted pointer value will be of type str.
+        # In python 3, it will instead be of type bytes.
+        #
+        # In python 3.6, json.loads gained the ability to process bytes objects.
+        # Earlier versions did not have this capability.
+        # So, to workaround, decode any non-str object.
+        # This could later be changed to detect the python version -.-
+        #
+        # https://bugs.python.org/issue10976
+        # https://bugs.python.org/msg275615
         if not isinstance(value, str):
             value = value.decode('utf-8')
 
