@@ -6,18 +6,18 @@ import six
 import sys
 import os
 
-# Load the shared object file. Further details are added at the end of the file
+# Load the shared object file. Further details are added at the end of the file.
 bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheel.so'))
 
-def test_bridge(name):
+def test_bridge(s):
     """
     Test if the C bridge is functional.
-    Should return "Hello <name>".
+    Should return "Hello <s>".
     """
 
-    pointer = bridge.TestBridge(six.b(name))
-    payload = ctypes.cast(pointer, ctypes.c_char_p).value
-    return payload.decode('utf-8')
+    pointer = bridge.TestBridge(six.b(s))
+    value = ctypes.cast(pointer, ctypes.c_char_p).value
+    return value.decode('utf-8')
 
 class FlywheelException(Exception):
     pass
@@ -25,51 +25,44 @@ class FlywheelException(Exception):
 class Flywheel:
 
     def __init__(self, key):
-        splits = key.split(':')
-
-        if len(splits) < 2:
+        if len(key.split(':')) < 2:
             raise FlywheelException('Invalid API key.')
-
-        self.key = key
-        self.keyC = ctypes.create_string_buffer(six.b(key))
+        self.key = six.b(key)
 
     @staticmethod
     def _handle_return(status, pointer):
-        statusCode = status.value
-        payload = ctypes.cast(pointer, ctypes.c_char_p).value
+        status_code = status.value
+        value = ctypes.cast(pointer, ctypes.c_char_p).value
 
-        if statusCode == 0 and payload is None:
+        if status_code == 0 and value is None:
             return None
-        elif statusCode == 0:
-            return json.loads(payload)['data']
+        elif status_code == 0:
+            return json.loads(value)['data']
         else:
-            result = 'Unknown error (status ' + str(statusCode) + ')'
             try:
-                result = json.loads(payload)['message']
+                msg = json.loads(value)['message']
             except:
-                pass
-
-            raise FlywheelException(result)
+                msg = 'Unknown error (status ' + str(status_code) + ').'
+            raise FlywheelException(msg)
 
     #
     # AUTO GENERATED CODE FOLLOWS
     #
-
     {{range .Signatures}}
     def {{camel2snake .Name}}(self{{range .Params}}, {{.Name}}{{end}}):
         status = ctypes.c_int(-100)
-        {{if ne .ParamDataName ""}}marshalled_{{.ParamDataName}} = json.dumps({{.ParamDataName}})
-        {{end}}
-        pointer = bridge.{{.Name}}(self.keyC, {{range .Params}}six.b(str({{if eq .Type "data"}}marshalled_{{end}}{{.Name}})), {{end}}ctypes.byref(status))
+        {{if ne .ParamDataName ""}}{{.ParamDataName}} = json.dumps({{.ParamDataName}})
+        {{end -}}
+        pointer = bridge.{{.Name}}(self.key, {{range .Params}}six.b(str({{.Name}})), {{end -}} ctypes.byref(status))
         return self._handle_return(status, pointer)
     {{end}}
 
 # Every bridge function returns a char*.
-# Manually informing ctypes of this prevents a segmentation fault on OSX.
+# Declaring this explicitly prevents segmentation faults on OSX.
 
 # Manual functions
 bridge.TestBridge.restype = ctypes.POINTER(ctypes.c_char)
 
 # API client functions
 {{range .Signatures}}bridge.{{.Name}}.restype = ctypes.POINTER(ctypes.c_char)
-{{end}}
+{{end -}}
