@@ -59,10 +59,7 @@ func (t *F) TestGroups() {
 	t.So(err, ShouldBeNil)
 	t.So(rGroup.Tags, ShouldHaveLength, 1)
 	t.So(rGroup.Tags[0], ShouldEqual, tag)
-
-	// Disabled - group modified timestamps do not update
-	// https://github.com/scitran/core/issues/665
-	// t.So(*changedGroup.Modified, ShouldHappenAfter, *savedGroup.Modified)
+	t.So(*changedGroup.Modified, ShouldHappenAfter, *savedGroup.Modified)
 
 	// Delete
 	_, err = t.DeleteGroup(groupId)
