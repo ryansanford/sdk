@@ -7,8 +7,8 @@ import (
 func main() {
 	// Create frontend printers
 	printers := []Printer{
-		NewBasicPrinter("go", "templates/template.go.", "bridge.go"),
-		NewBasicPrinter("py", "templates/template.py", "python/flywheel.py"),
+		NewBasicPrinter("go", "templates/template.go.", "dist/bridge.go"),
+		NewBasicPrinter("py", "templates/template.py", "dist/python/flywheel.py"),
 	}
 
 	// Parse source code into useful sigs
