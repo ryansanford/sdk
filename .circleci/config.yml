@@ -101,7 +101,7 @@ jobs:
                 destination: build
 
             - store_artifacts:
-                path: "/workspace/src/flywheel.io/sdk/bridge/compiled"
+                path: "/workspace/src/flywheel.io/sdk/bridge/dist"
                 destination: bridge
 
             # - store_test_results:
