@@ -62,7 +62,7 @@ func main() {
 
 
 	Println("Checking API...")
-	client := api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification(), api.InsecureUsePlaintext())
+	client := api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification, api.InsecureUsePlaintext)
 	user, _, err := client.GetCurrentUser()
 	check(err)
 

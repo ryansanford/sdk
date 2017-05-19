@@ -34,7 +34,7 @@ func makeClient(key *C.char) *api.Client {
 	if len(splits) == 2 {
 		return api.NewApiKeyClient(apiKey)
 	} else if len(splits) > 2 {
-		return api.NewApiKeyClient(apiKey, api.InsecureNoSSLVerification())
+		return api.NewApiKeyClient(apiKey, api.InsecureNoSSLVerification)
 	} else {
 		return nil
 	}

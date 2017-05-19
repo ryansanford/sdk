@@ -119,9 +119,9 @@ func makeClient() *api.Client {
 		}
 
 		if protocol == "https" {
-			client = api.NewApiKeyClient(key, api.InsecureNoSSLVerification())
+			client = api.NewApiKeyClient(key, api.InsecureNoSSLVerification)
 		} else if protocol == "http" {
-			client = api.NewApiKeyClient(key, api.InsecureNoSSLVerification(), api.InsecureUsePlaintext())
+			client = api.NewApiKeyClient(key, api.InsecureNoSSLVerification, api.InsecureUsePlaintext)
 		} else {
 			panic("Protocol must be http or https, was " + protocol)
 		}

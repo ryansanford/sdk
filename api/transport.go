@@ -34,16 +34,18 @@ var DefaultApiKeyClientOptions = ApiKeyClientOptions{
 
 // Specify that the ApiKeyClient should not verify SSL connections.
 // Should only be used for development.
-func InsecureNoSSLVerification() ApiKeyClientOption {
-	return func(o *ApiKeyClientOptions) {
-		o.InsecureSkipVerify = true
-	}
-}
+var InsecureNoSSLVerification ApiKeyClientOption
 
 // Specify that the ApiKeyClient should use a plaintext HTTP transport.
 // Should only be used for development.
-func InsecureUsePlaintext() ApiKeyClientOption {
-	return func(o *ApiKeyClientOptions) {
+var InsecureUsePlaintext ApiKeyClientOption
+
+func init() {
+	InsecureNoSSLVerification = func(o *ApiKeyClientOptions) {
+		o.InsecureSkipVerify = true
+	}
+
+	InsecureUsePlaintext = func(o *ApiKeyClientOptions) {
 		o.InsecureUsePlaintext = true
 	}
 }
