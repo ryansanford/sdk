@@ -304,6 +304,13 @@ case "$cmd" in
 
 	"env") # Load environment!   eval $(./make.sh env)
 		showEnv;;
+
+	"goserve") # Run godoc in server mode and open the docs
+		prepareGo
+		echo "Serving documentation on http://localhost:6060 ..."
+		( sleep 0.5; hash firefox 2> /dev/null && firefox http://localhost:6060/pkg/$pkg ) &
+		godoc -http :6060;;
+
 	*)
 		type "${cmd}" >/dev/null 2>&1 && eval "${cmd}" || (
 			echo "Usage: ./make.sh {go|godoc|gofmt|glide|build|format|clean|test|env|ci|cross}"
