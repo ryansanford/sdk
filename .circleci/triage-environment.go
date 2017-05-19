@@ -19,9 +19,9 @@ func main() {
 	var session *mgo.Session
 	var err error
 
-	for i := 1; i <= 15; i++ {
+	for i := 1; i <= 3; i++ {
 		log.Println("Connecting to mongo...")
-		wait := time.Duration(float64(i) * 0.3 * float64(time.Second))
+		wait := time.Duration(float64(i) * 5.0 * float64(time.Second))
 		session, err = mgo.DialWithTimeout("localhost", wait)
 		if err == nil { break }
 	}
