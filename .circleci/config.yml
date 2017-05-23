@@ -137,5 +137,9 @@ jobs:
                 path: "/workspace/src/flywheel.io/sdk/bridge/dist"
                 destination: bridge
 
+            - store_artifacts:
+                path: "/workspace/src/flywheel.io/sdk/coverage.html"
+                destination: coverage
+
             # - store_test_results:
             #     path: test-reports/
