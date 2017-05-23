@@ -39,6 +39,8 @@ func main() {
 		},
 	}
 
+	Println("Inserting test user...")
+
 	// The mongo client does not seem to respect json annotations!
 	// Sidestep this by passing it through a json encode, back to a map.
 	// Could open an issue on mgo later.
