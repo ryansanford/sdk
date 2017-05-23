@@ -25,10 +25,12 @@ jobs:
                 git clone https://github.com/scitran/core code/api; cd code/api;
                 git checkout "${CIRCLE_BRANCH}" || true; cd /var/scitran;
                 python /var/scitran/code/api/bin/database.py upgrade_schema;
-                /var/scitran/uwsgi-entrypoint.sh uwsgi --socket "[::]:9000" --processes 1 --threads 1 --enable-threads --wsgi-file /var/scitran/code/api/bin/api.wsgi --die-on-term'
+                /var/scitran/uwsgi-entrypoint.sh uwsgi --ini /var/scitran/config/uwsgi-config.ini --socket "[::]:9000" --processes 4 --threads 2;'
 
             - image: nginx
               environment:
+                # This config is represtitive of Flywheel systems in production
+                # as of 2017-05-22
                 NGINX_CONF: |
                   server {
                     listen 8080;
