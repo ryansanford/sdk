@@ -83,11 +83,6 @@ const (
 	// No affect in unit test mode.
 	SdkProtocolKey = "SdkTestProtocol"
 
-	// SdkTestDebug is the environment variable that sets the debug mode.
-	// If set, the test suite prints the raw HTTP request bodies.
-	// Any value works.
-	SdkDebugKey = "SdkTestDebug"
-
 	DefaultMode     = "integration"
 	DefaultKey      = "localhost:8443:change-me"
 	DefaultProtocol = "https"
@@ -128,15 +123,6 @@ func makeClient() *api.Client {
 
 	} else {
 		panic("Unsupported test mode " + mode)
-	}
-
-	_, debug := os.LookupEnv(SdkDebugKey)
-	if debug {
-		innerT := client.Client.Transport
-		debugT := &api.DebugTransport{Transport: innerT}
-
-		client.Client = debugT.Client()
-		client.Sling = client.Sling.Client(client.Client)
 	}
 
 	return client

@@ -58,7 +58,11 @@ func (t *F) TestSessions() {
 	rSession.Info = nil
 	rSession.Subject.Firstname = ""
 	rSession.Subject.Lastname = ""
+	t.So(sessions, ShouldContain, rSession)
 
+	// Get from parent
+	sessions, _, err = t.GetProjectSessions(projectId)
+	t.So(err, ShouldBeNil)
 	t.So(sessions, ShouldContain, rSession)
 
 	// Modify

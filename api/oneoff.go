@@ -1,9 +1,37 @@
 package api
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
+
+// ParseApiKey accepts an API key and returns the hostname, port, key, and any parsing error.
+func ParseApiKey(apiKey string) (string, int, string, error) {
+	var err error
+	host := ""
+	port := 443
+	key := ""
+
+	splits := strings.Split(apiKey, ":")
+
+	if len(splits) < 2 {
+		return host, port, key, errors.New("Invalid API key")
+	}
+
+	if len(splits) == 2 {
+		host = splits[0]
+		key = splits[1]
+	} else {
+		host = splits[0]
+		port, err = strconv.Atoi(splits[1])
+		key = splits[len(splits)-1]
+	}
+
+	return host, port, key, err
+}
 
 // Config represents some of the server's configuration.
 type Config struct {

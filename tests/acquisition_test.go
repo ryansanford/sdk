@@ -40,6 +40,11 @@ func (t *F) TestAcquisitions() {
 	rAcquisition.Info = nil
 	t.So(acquisitions, ShouldContain, rAcquisition)
 
+	// Get from parent
+	acquisitions, _, err = t.GetSessionAcquisitions(sessionId)
+	t.So(err, ShouldBeNil)
+	t.So(acquisitions, ShouldContain, rAcquisition)
+
 	// Modify
 	newName := RandString()
 	acquisitionMod := &api.Acquisition{

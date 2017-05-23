@@ -7,88 +7,52 @@ import (
 	"net/http/httputil"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/dghubble/sling"
 )
 
-// Client is an http and sling client capable of making flywheel requests.
-type Client struct {
-	*http.Client
-	*sling.Sling
-}
-
-type ApiKeyClientOption func(*ApiKeyClientOptions)
-type ApiKeyClientOptions struct {
-	// Skip SSL verification
-	InsecureSkipVerify bool
-
-	// Use plaintext (HTTP) transport
-	InsecureUsePlaintext bool
-}
-
-var DefaultApiKeyClientOptions = ApiKeyClientOptions{
-	InsecureSkipVerify:   false,
-	InsecureUsePlaintext: false,
-}
-
-// Specify that the ApiKeyClient should not verify SSL connections.
-// Should only be used for development.
-var InsecureNoSSLVerification ApiKeyClientOption
-
-// Specify that the ApiKeyClient should use a plaintext HTTP transport.
-// Should only be used for development.
-var InsecureUsePlaintext ApiKeyClientOption
-
-func init() {
-	InsecureNoSSLVerification = func(o *ApiKeyClientOptions) {
-		o.InsecureSkipVerify = true
-	}
-
-	InsecureUsePlaintext = func(o *ApiKeyClientOptions) {
-		o.InsecureUsePlaintext = true
-	}
-}
-
 // NewApiKeyClient creates a Client with the given API key and options.
 // Passing a key with an invalid format will panic.
 func NewApiKeyClient(apiKey string, options ...ApiKeyClientOption) *Client {
+
+	// If the debug environment variable is set, add the debug transport.
+	// This is added to the beginning of the options array, in case it is overridden later.
+	_, debug := os.LookupEnv(SdkDebugKey)
+	if debug {
+		options = append([]ApiKeyClientOption{DebugLogRequests(os.Stderr)}, options...)
+	}
+
+	// Load all configuration options into a config struct
 	config := DefaultApiKeyClientOptions
 	for _, x := range options {
 		x(&config)
 	}
 
-	splits := strings.Split(apiKey, ":")
-	if len(splits) < 2 {
-		panic("Invalid API key")
-	}
-
-	var err error
-	host := ""
-	port := 443
-	key := ""
-
-	if len(splits) == 2 {
-		host = splits[0]
-		key = splits[1]
-	} else {
-		host = splits[0]
-		port, err = strconv.Atoi(splits[1])
-		key = splits[len(splits)-1]
-	}
-
+	host, port, key, err := ParseApiKey(apiKey)
 	if err != nil {
 		panic(err)
 	}
 
+	// Load TLS configuration into a transport
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: config.InsecureSkipVerify,
 		},
 	}
 
-	hc := &http.Client{
-		Transport: tr,
+	var hc *http.Client
+
+	// Create an HTTP client, adding the debug transport if specified
+	if config.DebugWriter == nil {
+		hc = &http.Client{
+			Transport: tr,
+		}
+	} else {
+		debugT := &DebugTransport{
+			Transport: tr,
+			Writer:    config.DebugWriter,
+		}
+		hc = debugT.Client()
 	}
 
 	protocol := "https"
@@ -96,18 +60,17 @@ func NewApiKeyClient(apiKey string, options ...ApiKeyClientOption) *Client {
 		protocol = "http"
 	}
 
+	// Create a sling client, which is used for most server interactions
 	sc := sling.New().
 		Base(protocol+"://"+host+":"+strconv.Itoa(port)+"/").
 		Set("Authorization", "scitran-user "+key).
 		Path("api/").
 		Client(hc)
 
-	client := &Client{
+	return &Client{
 		hc,
 		sc,
 	}
-
-	return client
 }
 
 // DebugTransport prints its raw request bodies to a writer.
@@ -122,7 +85,7 @@ type DebugTransport struct {
 	Transport http.RoundTripper
 }
 
-var header = []byte("\n--------------------\n-----BEGIN HTTP-----\n--------------------\n")
+var header = []byte("\n--------------------\n---- BEGIN HTTP ----\n--------------------\n")
 var footer = []byte("\n--------------------\n----- END HTTP -----\n--------------------\n")
 
 // RoundTrip implements the RoundTripper interface.
