@@ -8,7 +8,7 @@ import (
 	"flywheel.io/sdk/api"
 )
 
-func (t *F) SkipTestBatch() {
+func (t *F) TestBatch() {
 	_, _, _, acquisitionId := t.createTestAcquisition()
 	gearId := t.createTestGear()
 
