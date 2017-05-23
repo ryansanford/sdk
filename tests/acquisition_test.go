@@ -76,7 +76,7 @@ func (t *F) TestAcquisitions() {
 	t.So(acquisitions, ShouldNotContain, rAcquisition)
 }
 
-func (t *F) SkipTestAcquisitionFiles() {
+func (t *F) TestAcquisitionFiles() {
 	_, _, sessionId := t.createTestSession()
 
 	acquisition := &api.Acquisition{Name: RandString(), SessionId: sessionId}

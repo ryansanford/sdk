@@ -256,7 +256,7 @@ format() {
 
 formatCheck() {
 	prepareGo
-	badFiles=($(gofmt -l -s $(listPackages && listBaseFiles)))
+	badFiles=($(gofmt -l -s $(listPackages | grep -v bridge/dist && listBaseFiles)))
 
 	if [[ ${#badFiles[@]} -gt 0 ]]; then
 		echo "The following files need formatting: ${badFiles[*]}"

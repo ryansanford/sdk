@@ -97,7 +97,7 @@ func (t *F) TestSessions() {
 	t.So(sessions, ShouldNotContain, rSession)
 }
 
-func (t *F) SkipTestSessionFiles() {
+func (t *F) TestSessionFiles() {
 	_, projectId := t.createTestProject()
 	session := &api.Session{Name: RandString(), ProjectId: projectId}
 	sessionId, _, err := t.AddSession(session)

@@ -39,6 +39,8 @@ func main() {
 		},
 	}
 
+	Println("Inserting test user...")
+
 	// The mongo client does not seem to respect json annotations!
 	// Sidestep this by passing it through a json encode, back to a map.
 	// Could open an issue on mgo later.
@@ -50,10 +52,18 @@ func main() {
 	if err != nil { Fatalln("Inserting user failed:", err) }
 	Println("Test user inserted.")
 
-	Println("Connecting to API...")
-	client := api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification, api.InsecureUsePlaintext)
-	user, _, err := client.GetCurrentUser()
-	if err != nil {	Fatalln(err) }
+	var client *api.Client
+	var user *api.User
+
+	for i := 1; i <= 15; i++ {
+		err = nil
+		Println("Connecting to API...")
+		client = api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification, api.InsecureUsePlaintext)
+		user, _, err = client.GetCurrentUser()
+		if err == nil { break }
+		time.Sleep(1000 * time.Millisecond)
+	}
+	if err != nil {	Fatalln("Could not connect to API:", err) }
 
 	Println("Environment is ready with user", user.Firstname, user.Lastname + ".")
 }
