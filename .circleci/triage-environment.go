@@ -60,11 +60,18 @@ func main() {
 		check(cursor.Close())
 	}
 
+	var client *api.Client
+	var user *api.User
 
-	Println("Checking API...")
-	client := api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification, api.InsecureUsePlaintext)
-	user, _, err := client.GetCurrentUser()
-	check(err)
+	for i := 1; i <= 15; i++ {
+		err = nil
+		Println("Checking API...")
+		client = api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification, api.InsecureUsePlaintext)
+		user, _, err = client.GetCurrentUser()
+		if err == nil { break }
+		time.Sleep(1000 * time.Millisecond)
+	}
+	if err != nil {	log.Fatalln("Could not connect to API:", err) }
 
 	Println("Environment still up with user", user.Firstname, user.Lastname + ".")
 }
