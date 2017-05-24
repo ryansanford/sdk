@@ -68,15 +68,15 @@ Get gear invocation                              | X       |        |
 Suggest files for gear                           |         |        |
 Delete gear                                      | X       | X      | X
 &nbsp;                                           |         |        |
-Get a job                                        | X       | X      |
-Get a job's logs                                 | X       | X      |
+Get a job                                        | X       | X      | X
+Get a job's logs                                 | X       | X      | X
 Append to a job's logs                           | X       |        |
-Enqueue a job                                    | X       | X      |
+Enqueue a job                                    | X       | X      | X
 Claim next pending job, and mark as running      | X       |        |
 Modify job                                       | X       | X      | X
 &nbsp;                                           |         |        |
-Get all batch jobs                               | X       | X      |
-Get batch job                                    | X       | X      |
+Get all batch jobs                               | X       | X      | X
+Get batch job                                    | X       | X      | X
 Propose batch job                                | X       |        |
 Start batch job                                  | X       | X      | X
 Cancel batch job                                 | X       |        |
