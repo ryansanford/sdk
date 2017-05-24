@@ -154,6 +154,58 @@ assert acq['notes'][0]['text'] == 'This is a note'
 assert acq['files'][0]['name'] == filename
 assert acq['files'][0]['size'] == os.path.getsize('/tmp/download3.py')
 
+#
+## Gears
+#
+
+gearId = fw.add_gear({
+	'category': 'converter',
+	'exchange' : {
+		'git-commit' : 'example',
+		'rootfs-hash' : 'sha384:example',
+		'rootfs-url' : 'https://example.example'
+	},
+	'gear':	{
+		'name': 'test-drive-gear',
+		'label': 'Test Drive Gear',
+		'version': str(random.randint(1,9000)),
+		'author': 'Noone',
+		'description': 'An empty example gear',
+		'license': 'Other',
+		'source': 'http://example.example',
+		'url': 'http://example.example',
+		'inputs': {
+			'x': {
+				'base': 'file'
+			}
+		}
+	}
+})
+
+gear = fw.get_gear(gearId)
+assert gear['gear']['name'] == 'test-drive-gear'
+
+gears = fw.get_all_gears()
+assert len(gears) > 0
+
+job_id = fw.add_job({
+	'gear_id': gearId,
+	'state': 'pending',
+	'inputs': {
+		'x': {
+			'type': 'acquisition',
+			'id': acqId,
+			'name': 'test-drive.py'
+		}
+	}
+})
+
+job = fw.get_job(job_id)
+assert job['gear_id'] == gearId
+
+logs = fw.get_job_logs(job_id)
+# Likely will not have anything in them yet
+
 
 #
 ## Misc
@@ -172,6 +224,7 @@ fw.delete_acquisition(acqId)
 fw.delete_session(sessionId)
 fw.delete_project(projectId)
 fw.delete_group(groupId)
+fw.delete_gear(gearId)
 
 print('')
 print('Test drive complete.')
