@@ -25,19 +25,43 @@ type CallResult struct {
 	Data interface{} `json:"data"`
 }
 
-func makeClient(key *C.char) *api.Client {
-	apiKey := C.GoString(key)
-	splits := strings.Split(apiKey, ":")
+func makeClient(apiKey *C.char) *api.Client {
+	apiKeyRaw := C.GoString(apiKey)
 
-	// If port number is specified, it's a non-production key; disable SSL verification.
-	// Otherwise, require it.
-	if len(splits) == 2 {
-		return api.NewApiKeyClient(apiKey)
-	} else if len(splits) > 2 {
-		return api.NewApiKeyClient(apiKey, api.InsecureNoSSLVerification)
-	} else {
+	// Parse the key into its components, so that we can activate some bridge-only features.
+	host, port, key, err := api.ParseApiKey(apiKeyRaw)
+	_ = host
+
+	// Intentionally no error handling.
+	// It is the frontend's responsibility to check the API key format.
+	//
+	// If the bridge is called with an invalid key, in principle the behavior is undefined.
+	// In practice, you'll probably get a long, irritating NPE stack trace.
+	if err != nil {
 		return nil
 	}
+
+	options := []api.ApiKeyClientOption{}
+
+	// Bridge-only feature:
+	// If port number is specified, it's a non-production key; disable SSL verification.
+	//
+	// This is intended to only be of use to developers hacking on the SDK.
+	// No production instance should EVER be on a non-443 port.
+	if port != 443 {
+		options = append(options, api.InsecureNoSSLVerification)
+	}
+
+	// Intentionally undocumented option: if ',InsecureUsePlaintext' is appended to the key, use HTTP.
+	// This should literally never be used outside of integration tests.
+	if strings.HasSuffix(key, ",InsecureUsePlaintext") {
+		options = append(options, api.InsecureUsePlaintext)
+
+		// Remove the suffix from the API key, because it's invalid
+		apiKeyRaw = strings.TrimRight(apiKeyRaw, ",InsecureUsePlaintext")
+	}
+
+	return api.NewApiKeyClient(apiKeyRaw, options...)
 }
 
 func handleError(err error, status *C.int) *C.char {

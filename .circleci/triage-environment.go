@@ -63,7 +63,7 @@ func main() {
 	var client *api.Client
 	var user *api.User
 
-	for i := 1; i <= 15; i++ {
+	for i := 1; i <= 3; i++ {
 		err = nil
 		Println("Checking API...")
 		client = api.NewApiKeyClient("localhost:8080:insecure-key", api.InsecureNoSSLVerification, api.InsecureUsePlaintext)

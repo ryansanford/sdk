@@ -48,6 +48,9 @@ func main() {
 	var encoded map[string]interface{}
 	json.Unmarshal(raw, &encoded)
 
+	// Avatar map is added by the API endpoint, but we don't have that, do we...
+	encoded["avatars"] = map[string]interface{}{}
+
 	err = session.DB("scitran").C("users").Insert(encoded)
 	if err != nil { Fatalln("Inserting user failed:", err) }
 	Println("Test user inserted.")
