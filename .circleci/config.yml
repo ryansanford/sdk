@@ -57,7 +57,14 @@ jobs:
                   ln -sf /dev/stderr /var/log/nginx/error.log;
                   echo "$NGINX_CONF" > /etc/nginx/conf.d/proxy.conf;
                   cat /etc/nginx/conf.d/proxy.conf;
-                  nginx -g "daemon off;" '
+
+                  # Nginx is sometimes irritable about connecting to an upstream if the upstream does not work on the first request.
+                  # To prevent transient delays, hold off on launching nginx until the upstream port is open.
+                  # This loops forever, and eventually is killed off when prepare-environment gives up.
+
+                  while ! timeout 1 bash -c "echo > /dev/tcp/localhost/9000"; do sleep 0.5; done;
+
+                  nginx -g "daemon off;"'
 
         steps:
             - checkout
