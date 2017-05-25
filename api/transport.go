@@ -64,6 +64,7 @@ func NewApiKeyClient(apiKey string, options ...ApiKeyClientOption) *Client {
 	sc := sling.New().
 		Base(protocol+"://"+host+":"+strconv.Itoa(port)+"/").
 		Set("Authorization", "scitran-user "+key).
+		Set("User-Agent", "Flywheel SDK").
 		Path("api/").
 		Client(hc)
 
