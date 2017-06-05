@@ -56,7 +56,7 @@ func isDataExpr(ex ast.Expr) (bool, string) {
 	name := ident.Name
 
 	// Could replace with lexing later
-	whitelist := []string{"Acquisition", "Batch", "BatchProposal", "Client", "Config", "ContainerReference", "DeletedResponse", "Error", "FileReference", "Formula", "FormulaResult", "Gear", "GearDoc", "GearSource", "Group", "IdResponse", "Input", "Job", "JobLog", "JobLogStatement", "Key", "ModifiedResponse", "Note", "Origin", "Output", "Permission", "ProgressReader", "Project", "Result", "Session", "Subject", "Target", "UploadResponse", "UploadSource", "User", "Version"}
+	whitelist := []string{"Acquisition", "Batch", "BatchProposal", "Collection", "Client", "Config", "ContainerReference", "DeletedResponse", "Error", "FileReference", "Formula", "FormulaResult", "Gear", "GearDoc", "GearSource", "Group", "IdResponse", "Input", "Job", "JobLog", "JobLogStatement", "Key", "ModifiedResponse", "Note", "Origin", "Output", "Permission", "ProgressReader", "Project", "Result", "Session", "Subject", "Target", "UploadResponse", "UploadSource", "User", "Version"}
 
 	if stringInSlice(name, whitelist) {
 		return true, name

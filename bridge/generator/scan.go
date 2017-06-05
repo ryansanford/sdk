@@ -196,11 +196,13 @@ func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl
 			"UploadToProject",
 			"UploadToSession",
 			"UploadToAcquisition",
+			"UploadToCollection",
 			"Download",
 			"DownloadSimple",
 			"DownloadFromProject",
 			"DownloadFromSession",
 			"DownloadFromAcquisition",
+			"DownloadFromCollection",
 		}
 		if stringInSlice(name, blacklist) {
 			return false
