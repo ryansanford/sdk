@@ -131,15 +131,10 @@ func (c *Client) ModifyCollection(id string, collection *Collection) (*http.Resp
 
 func (c *Client) DeleteCollection(id string) (*http.Response, error) {
 	var aerr *Error
-	var response *DeletedResponse
 
-	resp, err := c.New().Delete("collections/"+id).Receive(&response, &aerr)
-
-	// Should not have to check this count
+	// Unlike other delete endpoints, this doesn't return anything. Which is good, but inconsistent.
 	// https://github.com/scitran/core/issues/680
-	if err == nil && aerr == nil && response.DeletedCount != 1 {
-		return resp, errors.New("Deleting collection " + id + " returned " + strconv.Itoa(response.DeletedCount) + " instead of 1")
-	}
+	resp, err := c.New().Delete("collections/"+id).Receive(nil, &aerr)
 
 	return resp, Coalesce(err, aerr)
 }
