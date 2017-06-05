@@ -9,6 +9,7 @@ import (
 // Then, you can call these in the template with the assigned alias.
 var textRules = template.FuncMap{
 	"camel2snake": UpperCamelCaseToSnakeCase,
+	"camel2lowercamel": UpperCamelCaseToLowerCamelCase,
 }
 
 // A great template function guide:
@@ -37,4 +38,18 @@ func UpperCamelCaseToSnakeCase(funcName string) string {
 	}
 
 	return result
+}
+
+// Translate a function name from upper camel case, such as "DoStuff", to lower camel case, such as "doStuff".
+// Written for translating Golang-friendly function names to Matlab-friendly ones, may be useful elsewhere.
+func UpperCamelCaseToLowerCamelCase(funcName string) string {
+	result := []rune(funcName)
+
+	x := rune(result[0])
+
+	if unicode.IsUpper(x) {
+		result[0] = unicode.ToLower(x)
+	}
+
+	return string(result)
 }
