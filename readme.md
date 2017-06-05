@@ -20,10 +20,15 @@ For other languages, check out the [bridge readme](bridge).
 
 ## Testing
 
-Three environment variables control the test suite:
+The simplest way to run the test suite is to install the [CircleCI runner](https://circleci.com/docs/2.0/local-jobs/#installation) and use it from the SDK folder:
 
-* `SdkTestMode`: set to `unit` or `integration`. Right now only integration is supported.
-* `SdkTestKey`: In integration mode, set this to an API key. Defaults to `localhost:8443:change-me`.
+```
+circleci build
+```
+
+If you want to test manually, you can configure the test suite with these environment variables:
+
+* `SdkTestKey`: Set this to an API key. Defaults to `localhost:8443:change-me`.
 * `SdkTestDebug`: Setting this to any value will cause each test to print an HTTP/1.1 representation of each request. Best used to debug a single failing test.
 
 To run the integration test suite against a running API:
