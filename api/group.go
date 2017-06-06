@@ -18,7 +18,7 @@ type Group struct {
 
 	// Permissions array is called roles on groups, and groups only
 	// https://github.com/scitran/core/issues/662
-	Permissions []*Permission `json:"roles,omitempty"`
+	Permissions []*Permission `json:"permissions,omitempty"`
 }
 
 func (c *Client) GetAllGroups() ([]*Group, *http.Response, error) {
