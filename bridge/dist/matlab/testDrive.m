@@ -15,7 +15,7 @@ filename = strcat(currentFile, '.m');
 errMsg = 'Strings not equal';
 
 % Create client
-apiKey = 'dev.flywheel.io:x97IO0ol638igQUgCp'; % TODO: replace with the sdktestkey
+apiKey = getenv('SdkTestKey');
 fw = Bridge(apiKey);
 
 % Check that data can flow back & forth across the bridge
