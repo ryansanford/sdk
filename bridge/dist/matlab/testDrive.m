@@ -9,8 +9,10 @@ disp('Setup')
 % Create string to be used in testdrive
 testString = 'aeu8457bjclsj97v2h';
 % A test file
-currentFile = mfilename('fullpath');
-filename = strcat(currentFile, '.m');
+filename = 'test.txt';
+fid = fopen(filename, 'w');
+fprintf(fid, 'This is a test file');
+fclose(fid);
 % Define error message
 errMsg = 'Strings not equal';
 
@@ -21,6 +23,7 @@ fw = Bridge(apiKey);
 % Check that data can flow back & forth across the bridge
 bridgeResponse = Bridge.testBridge('world');
 assert(strcmp(bridgeResponse,'Hello world'), errMsg)
+
 %% Users
 disp('Testing Users')
 user = fw.getCurrentUser();
@@ -68,15 +71,16 @@ fw.addProjectNote(projectId, 'This is a note');
 projects = fw.getAllProjects();
 assert(~isempty(projects), errMsg)
 
+
 fw.uploadFileToProject(projectId, filename);
-fw.downloadFileFromProject(projectId, filename, '/tmp/download.m');
+fw.downloadFileFromProject(projectId, filename, '/tmp/download.txt');
 
 project = fw.getProject(projectId);
 assert(strcmp(project.tags,'blue'), errMsg)
 assert(strcmp(project.label,'testdrive'), errMsg)
 assert(strcmp(project.notes{1,1}.text, 'This is a note'), errMsg)
 assert(strcmp(project.files{1,1}.name, filename), errMsg)
-s = dir('/tmp/download.m');
+s = dir('/tmp/download.txt');
 assert(project.files{1,1}.size == s.bytes, errMsg)
 
 %% Sessions
@@ -95,14 +99,14 @@ sessions = fw.getAllSessions();
 assert(~isempty(sessions), errMsg)
 
 fw.uploadFileToSession(sessionId, filename);
-fw.downloadFileFromSession(sessionId, filename, '/tmp/download2.m');
+fw.downloadFileFromSession(sessionId, filename, '/tmp/download2.txt');
 
 session = fw.getSession(sessionId);
 assert(strcmp(session.tags, 'blue'), errMsg)
 assert(strcmp(session.label, 'testdrive'), errMsg)
 assert(strcmp(session.notes{1,1}.text, 'This is a note'), errMsg)
 assert(strcmp(session.files{1,1}.name, filename), errMsg)
-s = dir('/tmp/download2.m');
+s = dir('/tmp/download2.txt');
 assert(session.files{1,1}.size == s.bytes, errMsg)
 
 %% Acquisitions
@@ -117,19 +121,18 @@ fw.addAcquisitionNote(acqId, 'This is a note');
 acqs = fw.getSessionAcquisitions(sessionId);
 assert(~isempty(acqs), errMsg)
 
-%acqs = fw.getAllAcquisitions(); % TODO: couldn't load due to jsonlab not
-% being able to load
-%assert(~isempty(acqs), errMsg)
+acqs = fw.getAllAcquisitions();
+assert(~isempty(acqs), errMsg)
 
 fw.uploadFileToAcquisition(acqId, filename);
-fw.downloadFileFromAcquisition(acqId, filename, '/tmp/download3.m');
+fw.downloadFileFromAcquisition(acqId, filename, '/tmp/download3.txt');
 
 acq = fw.getAcquisition(acqId);
 assert(strcmp(acq.tags,'blue'), errMsg)
 assert(strcmp(acq.label,'testdrive'), errMsg)
 assert(strcmp(acq.notes{1,1}.text, 'This is a note'), errMsg)
 assert(strcmp(acq.files{1,1}.name, filename), errMsg)
-s = dir('/tmp/download3.m');
+s = dir('/tmp/download3.txt');
 assert(session.files{1,1}.size == s.bytes, errMsg)
 
 %% Gears
