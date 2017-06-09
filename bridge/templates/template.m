@@ -1,10 +1,10 @@
 % Flywheel
-classdef Bridge
+classdef Flywheel
     properties
         key
     end
     methods
-        function obj = Bridge(apiKey)
+        function obj = Flywheel(apiKey)
             % Check if key is valid
             %   key must be in format <domain>:<API token>
             C = strsplit(apiKey, ':');
@@ -15,12 +15,10 @@ classdef Bridge
             obj.key = apiKey;
 
             % Load flywheel shared library
-            if not(libisloaded('bridge'))
-                disp('loading library')
-                % NOTE: loading in flywheel.so file as library with 'alias' name bridge (mirrors Python code)
-                loadlibrary('flywheel','flywheel.h','alias','bridge')
+            if not(libisloaded('flywheelBridge'))
+                % loading in flywheelBridge.so file
+                loadlibrary('flywheelBridge','flywheelBridgeSimple.h')
             end
-
         end
         %
         % AUTO GENERATED CODE FOLLOWS
@@ -31,8 +29,8 @@ classdef Bridge
             statusPtr = libpointer('int32Ptr',-100);
             {{if ne .ParamDataName ""}}{{.ParamDataName}} = savejson('',{{.ParamDataName}});
             {{end -}}
-            pointer = calllib('bridge','{{.Name}}',obj.key,{{range .Params}}{{.Name}},{{end -}} statusPtr);
-            result = Bridge.handleJson(statusPtr,pointer);
+            pointer = calllib('flywheelBridge','{{.Name}}',obj.key,{{range .Params}}{{.Name}},{{end -}} statusPtr);
+            result = Flywheel.handleJson(statusPtr,pointer);
         end
         {{end}}
         % AUTO GENERATED CODE ENDS
@@ -66,10 +64,10 @@ classdef Bridge
                 throw(ME)
             end
         end
-        % Test Bridge
+        % TestBridge
         function ptrValue = testBridge(s)
             % Call bridge
-            ptrValue = calllib('bridge','TestBridge',s);
+            ptrValue = calllib('flywheelBridge','TestBridge',s);
         end
     end
 end

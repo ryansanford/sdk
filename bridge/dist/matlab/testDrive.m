@@ -18,10 +18,10 @@ errMsg = 'Strings not equal';
 
 % Create client
 apiKey = getenv('SdkTestKey');
-fw = Bridge(apiKey);
+fw = Flywheel(apiKey);
 
 % Check that data can flow back & forth across the bridge
-bridgeResponse = Bridge.testBridge('world');
+bridgeResponse = Flywheel.testBridge('world');
 assert(strcmp(bridgeResponse,'Hello world'), errMsg)
 
 %% Users
