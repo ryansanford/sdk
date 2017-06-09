@@ -10,7 +10,7 @@ import (
 type Collection struct {
 	Id          string `json:"_id,omitempty"`
 	Name        string `json:"label,omitempty"`
-	GroupId     string `json:"group,omitempty"`
+	Curator     string `json:"curator,omitempty"`
 	Description string `json:"description,omitempty"`
 
 	Created  *time.Time `json:"created,omitempty"`
@@ -18,7 +18,6 @@ type Collection struct {
 	Files    []*File    `json:"files,omitempty"`
 
 	Notes []*Note                `json:"notes,omitempty"`
-	Tags  []string               `json:"tags,omitempty"`
 	Info  map[string]interface{} `json:"info,omitempty"`
 
 	Public      *bool         `json:"public,omitempty"`

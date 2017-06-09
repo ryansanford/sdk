@@ -29,13 +29,32 @@ func (t *F) TestCollections() {
 	t.So(*savedCollection.Created, ShouldHappenBefore, now)
 	t.So(*savedCollection.Modified, ShouldHappenBefore, now)
 
+	// Add Acquisitions
+	_, _, sessionId, acquisitionId := t.createTestAcquisition()
+
+	// Add Acquisition
+
+	// Get Sessions
+	savedSessions, _, err := t.GetCollectionSessions(cId)
+	t.So(savedSessions, ShouldHaveLength, 1)
+	t.So(savedSessions[0].Id, ShouldEqual, sessionId)
+
+	// Get Acquisitions
+	savedAcquisitions, _, err := t.GetCollectionAcquisitions(cId)
+	t.So(savedAcquisitions, ShouldHaveLength, 1)
+	t.So(savedAcquisitions[0].Id, ShouldEqual, acquisitionId)
+
+	// Get Session Acquisitions
+	savedSessionAcquisitions, _, err := t.GetCollectionSessionAcquisitions(cId, savedSessions[0].Id)
+	t.So(savedSessionAcquisitions, ShouldHaveLength, 1)
+	t.So(savedSessionAcquisitions[0].Id, ShouldEqual, acquisitionId)
+
 	// Get all
 	collections, _, err := t.GetAllCollections()
 	t.So(err, ShouldBeNil)
 	// workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check
 	savedCollection.Files = nil
 	savedCollection.Notes = nil
-	savedCollection.Tags = nil
 	savedCollection.Info = nil
 	t.So(collections, ShouldContain, savedCollection)
 
