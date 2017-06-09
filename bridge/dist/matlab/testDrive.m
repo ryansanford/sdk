@@ -161,8 +161,8 @@ disp('Testing Misc')
 config = fw.getConfig();
 assert(~isempty(config), errMsg)
 
-version = fw.getVersion();
-assert(version.database >= 25, errMsg)
+fwVersion = fw.getVersion();
+assert(fwVersion.database >= 25, errMsg)
 
 %% Cleanup
 disp('Cleanup')
