@@ -19,6 +19,10 @@ classdef Flywheel
                 % loading in flywheelBridge.so file
                 loadlibrary('flywheelBridge','flywheelBridgeSimple.h')
             end
+
+            % Suppress Max Length Warning
+            warningid = 'MATLAB:namelengthmaxexceeded';
+            warning('off',warningid);
         end
         %
         % AUTO GENERATED CODE FOLLOWS
