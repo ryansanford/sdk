@@ -27,14 +27,14 @@ assert(strcmp(bridgeResponse,'Hello world'), errMsg)
 %% Users
 disp('Testing Users')
 user = fw.getCurrentUser();
-assert(~isempty(user.x0x5F_id))
+assert(~isempty(user.id))
 
 users = fw.getAllUsers();
 assert(length(users) >= 1, 'No users returned')
 
 % add a new user
 email = strcat(testString, '@', testString, '.com');
-userId = fw.addUser(struct('x0x5F_id',email,'email',email,'firstname',testString,'lastname',testString));
+userId = fw.addUser(struct('id',email,'email',email,'firstname',testString,'lastname',testString));
 
 % modify the new user
 fw.modifyUser(userId, struct('firstname', 'John'));
@@ -47,7 +47,7 @@ fw.deleteUser(userId);
 %% Groups
 disp('Testing Groups')
 
-groupId = fw.addGroup(struct('x0x5F_id',testString));
+groupId = fw.addGroup(struct('id',testString));
 
 fw.addGroupTag(groupId, 'blue');
 fw.modifyGroup(groupId, struct('name','testdrive'));
