@@ -1,13 +1,16 @@
 % Flywheel
 classdef Flywheel
+    % Flywheel class enables user to communicate with Flywheel platform
     properties
-        key
+        key     % key - API Key assigned through the Flywheel UI
     end
     methods
         function obj = Flywheel(apiKey)
-            % Check if key is valid
-            %   key must be in format <domain>:<API token>
+            % Usage Flywheel(apiKey)
+            %  apiKey - API Key assigned for each user through the Flywheel UI
+            %          apiKey must be in format <domain>:<API token>
             C = strsplit(apiKey, ':');
+            % Check if key is valid
             if length(C) < 2
                 ME = MException('FlywheelException:Invalid', 'Invalid API Key');
                 throw(ME)
@@ -43,9 +46,8 @@ classdef Flywheel
         % AUTO GENERATED CODE ENDS
     end
     methods (Static)
-        % Handle JSON using JSONlab
         function structFromJson = handleJson(statusPtr,ptrValue)
-            % Get status value
+            % Handle JSON using JSONlab
             statusValue = statusPtr.Value;
             % If status indicates success, load JSON
             if statusValue == 0
@@ -53,13 +55,9 @@ classdef Flywheel
                 loadedJson = loadjson(ptrValue);
                 % loadedJson contains status, message and data, only return
                 %   the data information.
-                structFromJson = loadedJson.data;
+                dataFromJson = loadedJson.data;
                 %  Call replaceField on loadedJson to replace x0x5F_id with id
-                if isstruct(structFromJson)
-                    oldField = 'x0x5F_id';
-                    newField = 'id';
-                    structFromJson = Flywheel.replaceField(structFromJson,oldField,newField);
-                end
+                structFromJson = Flywheel.replaceField(dataFromJson,'x0x5F_id','id');
             % Otherwise, nonzero statusCode indicates an error
             else
                 % Try to load message from the JSON
@@ -77,13 +75,33 @@ classdef Flywheel
                 throw(ME)
             end
         end
-        % Replace a fieldname within a struct object
         function newStruct = replaceField(oldStruct,oldField,newField)
-            f = fieldnames(oldStruct);
-            % Check if oldField is a fieldname in oldStruct
-            if any(ismember(f, oldField))
-                [oldStruct.(newField)] = oldStruct.(oldField);
-                newStruct = rmfield(oldStruct,oldField);
+            % Replace a field within a struct or a cell array of structs
+            % Check if variable is a cell
+            if iscell(oldStruct)
+                % Initialize newStruct as a copy of the oldStruct
+                newStruct = oldStruct;
+                for k=1:length(oldStruct)
+                    f = fieldnames(oldStruct{k});
+                    % Check if oldField is a fieldname in oldStruct
+                    if any(ismember(f, oldField))
+                        [oldStruct{k}.(newField)] = oldStruct{k}.(oldField);
+                        newStruct{k} = rmfield(oldStruct{k},oldField);
+                    else
+                        newStruct{k} = oldStruct{k};
+                    end
+                end
+            % Check if variable is a struct
+            elseif isstruct(oldStruct)
+                % Replace a fieldname within a struct object
+                f = fieldnames(oldStruct);
+                % Check if oldField is a fieldname in oldStruct
+                if any(ismember(f, oldField))
+                    [oldStruct.(newField)] = oldStruct.(oldField);
+                    newStruct = rmfield(oldStruct,oldField);
+                else
+                    newStruct = oldStruct;
+                end
             % If not, newStruct is equal to oldStruct
             else
                 newStruct = oldStruct;
