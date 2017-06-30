@@ -15,7 +15,6 @@ type Error struct {
 type Permission struct {
 	Id    string `json:"_id"`
 	Level string `json:"access"`
-	Site  string `json:"site,omitempty"`
 }
 
 type Origin struct {
