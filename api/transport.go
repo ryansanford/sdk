@@ -74,7 +74,7 @@ func NewApiKeyClient(apiKey string, options ...ApiKeyClientOption) *Client {
 	}
 }
 
-// DebugTransport prints its raw request bodies to a writer.
+// DebugTransport prints its raw requests and responses to a writer, including bodies.
 type DebugTransport struct {
 
 	// All requests made with this transport will be written to Writer.
@@ -87,34 +87,72 @@ type DebugTransport struct {
 }
 
 var header = []byte("\n--------------------\n---- BEGIN HTTP ----\n--------------------\n")
+var middle = []byte("\n--------------------\n-- BEGIN RESPONSE --\n--------------------\n")
 var footer = []byte("\n--------------------\n----- END HTTP -----\n--------------------\n")
 
 // RoundTrip implements the RoundTripper interface.
 func (t *DebugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
+	// Effort in this made in this function, to:
+	//
+	// 1) Write debug output only once, to be concurrency-friendly
+	// 2) Write as much debug output as possible when errors occur
+	// 3) Expose the most relevant error: return an HTTP error if there was both an HTTP and a debug error.
+	//
+	// For that reason, there's a bit of "if err is nil okay now we can use err" logic.
+
 	msg, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
+		Println("ergh")
 		return nil, err
 	}
 
 	msg = append(header, msg...)
-	msg = append(msg, footer...)
+	msg = append(msg, middle...)
 
-	if t.Writer == nil {
-		_, err = os.Stderr.Write(msg)
-	} else {
-		_, err = t.Writer.Write(msg)
-	}
-
-	if err != nil {
-		return nil, err
-	}
+	var resp *http.Response
 
 	if t.Transport != nil {
-		return t.Transport.RoundTrip(req)
+		resp, err = t.Transport.RoundTrip(req)
 	} else {
-		return http.DefaultTransport.RoundTrip(req)
+		resp, err = http.DefaultTransport.RoundTrip(req)
 	}
+
+	// Stop if request failed
+	if err != nil {
+		str := []byte("Request failed: " + err.Error())
+		msg = append(msg, str...)
+
+	} else {
+		// If there is a valid response, dump that too
+		if resp != nil {
+			var msg2 []byte
+			msg2, err = httputil.DumpResponse(resp, true)
+
+			if err != nil {
+				str := []byte("Response dump failed: " + err.Error())
+				msg = append(msg, str...)
+			} else {
+				msg = append(msg, msg2...)
+			}
+		}
+	}
+
+	msg = append(msg, footer...)
+
+	var err2 error
+	if t.Writer == nil {
+		_, err2 = os.Stderr.Write(msg)
+	} else {
+		_, err2 = t.Writer.Write(msg)
+	}
+
+	// Don't allow debug write error to overwrite original error
+	if err == nil {
+		err = err2
+	}
+
+	return resp, err
 }
 
 // Client returns an *http.Client which uses the DebugTransport.

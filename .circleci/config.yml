@@ -27,7 +27,7 @@ jobs:
                 python /var/scitran/code/api/bin/database.py upgrade_schema;
                 /var/scitran/uwsgi-entrypoint.sh uwsgi --ini /var/scitran/config/uwsgi-config.ini --socket "[::]:9000" --processes 4 --threads 2;'
 
-            - image: nginx
+            - image: nginx:stable
               environment:
                 # This config is represtitive of Flywheel systems in production as of 2017-05-22
                 NGINX_CONF: |
@@ -72,11 +72,12 @@ jobs:
             - restore_cache:
                 key: sdk-golang-1-{{ checksum "make.sh"}}-{{ checksum "glide.lock" }}
 
-            # This is a hack to prevent downloading glide on every file change when iterating.
-            # Disable before pushing :/
-            # - run:
-            #     name: Hack
-            #     command: mkdir -p /workspace/bin/ && cp ./glide /workspace/bin/glide
+            # This is a hack to prevent downloading glide on every file change when iterating locally.
+            # Users can keep a copy of the glide binary in the repo folder and have that be used instead.
+            # As before, it would be better to get caching in the local build environment...
+            - run:
+                name: "[Hack] Check for Local Glide"
+                command: mkdir -p /workspace/bin/ && test -f ./glide -a -x ./glide && cp ./glide /workspace/bin/glide || true
 
             - run:
                 name: Install Dependencies
@@ -108,6 +109,7 @@ jobs:
             - run:
                 name: Integration Tests
                 command: ./make.sh test
+                # command: ./make.sh test -run TestSuite/TestGetConfig
                 environment:
                   SdkTestMode:     "integration"
                   SdkTestKey:      "localhost:8080:insecure-key"

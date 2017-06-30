@@ -44,6 +44,7 @@ func (t *F) TestClient() {
 }
 
 func (t *F) TestDebugTransport() {
+	// This could test response content if we exposed the key or allowed regeneration of clients
 	var buffer bytes.Buffer
 	client := api.NewApiKeyClient("hostname.example:80:my-key", api.DebugLogRequests(&buffer))
 
@@ -52,6 +53,8 @@ func (t *F) TestDebugTransport() {
 
 	message := buffer.String()
 	t.So(message, ShouldContainSubstring, "BEGIN HTTP")
+	t.So(message, ShouldContainSubstring, "BEGIN RESPONSE")
+	t.So(message, ShouldContainSubstring, "Request failed: ")
 	t.So(message, ShouldContainSubstring, "END HTTP")
 	t.So(message, ShouldContainSubstring, "GET /api")
 	t.So(message, ShouldContainSubstring, "Host: ")
