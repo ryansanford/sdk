@@ -16,13 +16,30 @@ classdef Flywheel
                 throw(ME)
             end
             obj.key = apiKey;
-
+            % Check if JSONlab is in path
+            if ~exist('savejson')
+                ME = MException('FlywheelException:JSONlab', 'JSONlab function savejson is not loaded. Please install JSONlab and add to path.')
+                throw(ME)
+            end
+            if ~exist('loadjson')
+                ME = MException('FlywheelException:JSONlab', 'JSONlab function loadjson is not loaded. Please install JSONlab and add to path.')
+                throw(ME)
+            end
             % Load flywheel shared library
             if not(libisloaded('flywheelBridge'))
                 % loading in flywheelBridge.so file
                 loadlibrary('flywheelBridge','flywheelBridgeSimple.h')
             end
-
+            %%% TODO: use this code below to determine which .so and .h to load
+            %if ismac
+            % Code to run on Mac plaform
+            %elseif isunix
+            % Code to run on Linux plaform
+            %elseif ispc
+            % Code to run on Windows platform
+            %else
+            %    disp('Platform not supported')
+            %end
             % Suppress Max Length Warning
             warningid = 'MATLAB:namelengthmaxexceeded';
             warning('off',warningid);
