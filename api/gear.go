@@ -88,9 +88,7 @@ func (c *Client) AddGear(gear *GearDoc) (string, *http.Response, error) {
 		gear.Gear.Inputs = map[string]map[string]interface{}{}
 	}
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Post("gears/"+gearName+"?root=true").BodyJSON(gear).Receive(&response, &aerr)
+	resp, err := c.New().Post("gears/"+gearName).BodyJSON(gear).Receive(&response, &aerr)
 
 	if response != nil {
 		result = response.Id
@@ -102,9 +100,6 @@ func (c *Client) AddGear(gear *GearDoc) (string, *http.Response, error) {
 func (c *Client) DeleteGear(id string) (*http.Response, error) {
 	var aerr *Error
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Delete("gears/"+id+"?root=true").Receive(nil, &aerr)
-
+	resp, err := c.New().Delete("gears/"+id).Receive(nil, &aerr)
 	return resp, Coalesce(err, aerr)
 }
