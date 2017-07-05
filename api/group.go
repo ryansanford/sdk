@@ -75,9 +75,7 @@ func (c *Client) ModifyGroup(id string, group *Group) (*http.Response, error) {
 	var aerr *Error
 	var response *ModifiedResponse
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Put("groups/"+id+"?root=true").BodyJSON(group).Receive(&response, &aerr)
+	resp, err := c.New().Put("groups/"+id).BodyJSON(group).Receive(&response, &aerr)
 
 	// Should not have to check this count
 	// https://github.com/scitran/core/issues/680

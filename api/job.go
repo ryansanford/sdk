@@ -113,9 +113,7 @@ func (c *Client) GetJob(id string) (*Job, *http.Response, error) {
 	var aerr *Error
 	var job *Job
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Get("jobs/"+id+"?root=true").Receive(&job, &aerr)
+	resp, err := c.New().Get("jobs/"+id).Receive(&job, &aerr)
 	return job, resp, Coalesce(err, aerr)
 }
 
@@ -144,23 +142,14 @@ func (c *Client) AddJob(job *Job) (string, *http.Response, error) {
 func (c *Client) AddJobLogs(id string, statements []*JobLogStatement) (*http.Response, error) {
 	var aerr *Error
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Post("jobs/"+id+"/logs"+"?root=true").BodyJSON(statements).Receive(nil, &aerr)
+	resp, err := c.New().Post("jobs/"+id+"/logs").BodyJSON(statements).Receive(nil, &aerr)
 	return resp, Coalesce(err, aerr)
 }
 
-func (c *Client) ModifyJob(id string, job *Job, asRoot bool) (*http.Response, error) {
+func (c *Client) ModifyJob(id string, job *Job) (*http.Response, error) {
 	var aerr *Error
 
-	// Should not have to specify root flag
-	// https://github.com/scitran/core/issues/657
-	url := "jobs/" + id
-	if asRoot {
-		url += "?root=true"
-	}
-
-	resp, err := c.New().Put(url).BodyJSON(job).Receive(nil, &aerr)
+	resp, err := c.New().Put("jobs/"+id).BodyJSON(job).Receive(nil, &aerr)
 	return resp, Coalesce(err, aerr)
 }
 
@@ -174,9 +163,7 @@ func (c *Client) StartNextPendingJob(tags ...string) (JobRetrieval, *Job, *http.
 		Tags: tags,
 	}
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Get("jobs/next"+"?root=true").QueryStruct(params).Receive(&job, &aerr)
+	resp, err := c.New().Get("jobs/next").QueryStruct(params).Receive(&job, &aerr)
 	rerr := Coalesce(err, aerr)
 
 	if rerr == nil && job != nil {
@@ -194,25 +181,16 @@ func (c *Client) HeartbeatJob(id string) (*http.Response, error) {
 	// Send empty modification
 	empty := map[string]string{}
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Put("jobs/"+id+"?root=true").BodyJSON(empty).Receive(nil, &aerr)
+	resp, err := c.New().Put("jobs/"+id).BodyJSON(empty).Receive(nil, &aerr)
 	return resp, Coalesce(err, aerr)
 }
 
-func (c *Client) ChangeJobState(id string, state JobState, asRoot bool) (*http.Response, error) {
+func (c *Client) ChangeJobState(id string, state JobState) (*http.Response, error) {
 	var aerr *Error
 	jobMod := &Job{
 		State: state,
 	}
 
-	// Should not have to specify root flag
-	// https://github.com/scitran/core/issues/657
-	url := "jobs/" + id
-	if asRoot {
-		url += "?root=true"
-	}
-
-	resp, err := c.New().Put(url).BodyJSON(jobMod).Receive(nil, &aerr)
+	resp, err := c.New().Put("jobs/"+id).BodyJSON(jobMod).Receive(nil, &aerr)
 	return resp, Coalesce(err, aerr)
 }

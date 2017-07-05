@@ -49,9 +49,7 @@ func (c *Client) GetUser(id string) (*User, *http.Response, error) {
 	var aerr *Error
 	var user *User
 
-	// Bug - erroneously will not allow nonroot users
-	// https://github.com/scitran/core/issues/660
-	resp, err := c.New().Get("users/"+id+"?root=true").Receive(&user, &aerr)
+	resp, err := c.New().Get("users/"+id).Receive(&user, &aerr)
 	return user, resp, Coalesce(err, aerr)
 }
 
@@ -61,9 +59,7 @@ func (c *Client) AddUser(user *User) (string, *http.Response, error) {
 	var response *IdResponse
 	var result string
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Post("users?root=true").BodyJSON(user).Receive(&response, &aerr)
+	resp, err := c.New().Post("users").BodyJSON(user).Receive(&response, &aerr)
 
 	if response != nil {
 		result = response.Id
@@ -78,9 +74,7 @@ func (c *Client) ModifyUser(id string, user *User) (*http.Response, error) {
 	var aerr *Error
 	var response *ModifiedResponse
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Put("users/"+id+"?root=true").BodyJSON(user).Receive(&response, &aerr)
+	resp, err := c.New().Put("users/"+id).BodyJSON(user).Receive(&response, &aerr)
 
 	// Should not have to check this count
 	// https://github.com/scitran/core/issues/680
@@ -96,9 +90,7 @@ func (c *Client) DeleteUser(id string) (*http.Response, error) {
 	var aerr *Error
 	var response *DeletedResponse
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Delete("users/"+id+"?root=true").Receive(&response, &aerr)
+	resp, err := c.New().Delete("users/"+id).Receive(&response, &aerr)
 
 	// Should not have to check this count
 	// https://github.com/scitran/core/issues/680

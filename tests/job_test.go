@@ -56,10 +56,7 @@ func (t *F) TestJobs() {
 		Tags: []string{tag2},
 	}
 
-	// First as non-root, then as root
-	_, err = t.ModifyJob(jobId, jobMod, false)
-	t.So(err, ShouldNotBeNil)
-	_, err = t.ModifyJob(jobId, jobMod, true)
+	_, err = t.ModifyJob(jobId, jobMod)
 	t.So(err, ShouldBeNil)
 
 	// Check
@@ -71,7 +68,7 @@ func (t *F) TestJobs() {
 
 	// Cancel as non-root
 	jobMod = &api.Job{State: api.Cancelled}
-	_, err = t.ModifyJob(jobId, jobMod, false)
+	_, err = t.ModifyJob(jobId, jobMod)
 	t.So(err, ShouldBeNil)
 
 	// Check
@@ -158,7 +155,7 @@ func (t *F) TestJobQueue() {
 	t.So(err, ShouldBeNil)
 
 	// Finish
-	_, err = t.ChangeJobState(jobId, api.Complete, true)
+	_, err = t.ChangeJobState(jobId, api.Complete)
 	t.So(err, ShouldBeNil)
 	rJob3, _, err := t.GetJob(jobId)
 	t.So(rJob3.State, ShouldEqual, api.Complete)
