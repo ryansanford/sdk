@@ -8,7 +8,7 @@ import (
 // Add these to your template with template.Funcs!
 // Then, you can call these in the template with the assigned alias.
 var textRules = template.FuncMap{
-	"camel2snake": UpperCamelCaseToSnakeCase,
+	"camel2snake":      UpperCamelCaseToSnakeCase,
 	"camel2lowercamel": UpperCamelCaseToLowerCamelCase,
 }
 

@@ -1,2 +1,4 @@
 /Flywheel.m
-*.m~
+/*.m~
+/*.h
+/*.so
