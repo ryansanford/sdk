@@ -42,95 +42,97 @@ Or, to run a single test:
 
 ## Route Implementation Status
 
-Route                                            | Golang  |  C++   | Python
--------------------------------------------------|---------|--------|--------
-Get current user                                 | X       | X      | X
-&nbsp;                                           |         |        |
-Get all users                                    | X       | X      | X
-Get user                                         | X       | X      | X
-Add user                                         | X       | X      | X
-Modify user                                      | X       | X      | X
-Delete user                                      | X       | X      | X
-&nbsp;                                           |         |        |
-Get all containers of type                       | X       | X      | X
-Create container                                 | X       | X      | X
-Get container                                    | X       | X      | X
-Modify container                                 | X       | X      | X
-Delete container                                 | X       | X      | X
-Upload file to container                         | X       | X      | X
-Download file from container                     | X       | X      | X
-Get jobs that involve container                  |         |        |
-Support for collections                          |         |        |
-Support for analyses                             |         |        |
-&nbsp;                                           |         |        |
-Resolve path to route                            |         |        |
-&nbsp;                                           |         |        |
-Get all gears                                    | X       | X      | X
-Create gear                                      | X       | X      | X
-Get gear invocation                              | X       |        |
-Suggest files for gear                           |         |        |
-Delete gear                                      | X       | X      | X
-&nbsp;                                           |         |        |
-Get a job                                        | X       | X      | X
-Get a job's logs                                 | X       | X      | X
-Append to a job's logs                           | X       |        |
-Enqueue a job                                    | X       | X      | X
-Claim next pending job, and mark as running      | X       |        |
-Modify job                                       | X       | X      | X
-&nbsp;                                           |         |        |
-Get all batch jobs                               | X       | X      | X
-Get batch job                                    | X       | X      | X
-Propose batch job                                | X       |        |
-Start batch job                                  | X       | X      | X
-Cancel batch job                                 | X       |        |
-&nbsp;                                           |         |        |
-Create bulk download ticket                      |         |        |
-Get bulk download from tricket                   |         |        |
-&nbsp;                                           |         |        |
-Various upload strategies?                       |         |        |
-Engine upload                                    |         |        |
-&nbsp;                                           |         |        |
-Declare a packfile upload to container           |         |        |
-Upload to packfile                               |         |        |
-Complete packfile and listen for progress        |         |        |
-&nbsp;                                           |         |        |
-Set project template                             |         |        |
-Delete project template                          |         |        |
-Recalculate project template compliance          |         |        |
-Recalculate all project template compliance      |         |        |
-&nbsp;                                           |         |        |
-Get all devices                                  |         |        |
-Get device                                       |         |        |
-Get device statuses                              |         |        |
-Get current device                               |         |        |
-&nbsp;                                           |         |        |
-Get site configuration                           | X       | X      | X
-Get site version                                 | X       | X      | X
-&nbsp;                                           |         |        |
-_Delayed_                                        |         |        |
-Regenerate current user's API key                |         |        |
-Get user groups                                  |         |        |
-Get containers for user?                         |         |        |
-Clean out expired packfile progress              |         |        |
-Scan for and fix disconnected jobs               |         |        |
-Retry job                                        |         |        |
-List groups with projects the user can access    |         |        |
-Get schema                                       |         |        |
-Get job stats (redesign on the horizon)          |         |        |
-Get report                                       |         |        |
-Search?                                          |         |        |
-Search files?                                    |         |        |
-Search container?                                |         |        |
-Get all gear rules                               |         |        |
-Overwrite all gear rules                         |         |        |
-&nbsp;                                           |         |        |
-_Won't be implemented_                           |         |        |
-List known sites (depreciated)                   |         |        |
-Register a site (depreciated)                    |         |        |
-Get current user avatar (no point)               |         |        |
-Get user avatar (no point)                       |         |        |
-Get all jobs (depreciated)                       |         |        |
-Get job configuration (no point)                 |         |        |
+Route                                            | Golang  |  C++   | Python | Matlab
+-------------------------------------------------|---------|--------|--------|--------
+Get current user                                 | X       | X      | X      | X
+&nbsp;                                           |         |        |        |
+Get all users                                    | X       | X      | X      | X
+Get user                                         | X       | X      | X      | X
+Add user                                         | X       | X      | X      | X
+Modify user                                      | X       | X      | X      | X
+Delete user                                      | X       | X      | X      | X
+&nbsp;                                           |         |        |        |
+Get all containers of type                       | X       | X      | X      | X
+Create container                                 | X       | X      | X      | X
+Get container                                    | X       | X      | X      | X
+Modify container                                 | X       | X      | X      | X
+Delete container                                 | X       | X      | X      | X
+Upload file to container                         | X       | X      | X      | X
+Download file from container                     | X       | X      | X      | X
+Upload note to a container                       | X       | X      | X      | X
+Upload tag to a container                        | X       | X      | X      | X
+Get jobs that involve container                  |         |        |        |
+Support for collections                          |         |        |        |
+Support for analyses                             |         |        |        |
+&nbsp;                                           |         |        |        |
+Resolve path to route                            |         |        |        |
+&nbsp;                                           |         |        |        |
+Get all gears                                    | X       | X      | X      | X
+Create gear                                      | X       | X      | X      | X
+Get gear invocation                              | X       |        |        |
+Suggest files for gear                           |         |        |        |
+Delete gear                                      | X       | X      | X      | X
+&nbsp;                                           |         |        |        |
+Get a job                                        | X       | X      | X      | X
+Get a job's logs                                 | X       | X      | X      | X
+Append to a job's logs                           | X       |        |        |
+Enqueue a job                                    | X       | X      | X      | X
+Claim next pending job, and mark as running      | X       |        |        |
+Modify job                                       | X       | X      | X      | X
+&nbsp;                                           |         |        |        |
+Get all batch jobs                               | X       | X      | X      | X
+Get batch job                                    | X       | X      | X      | X
+Propose batch job                                | X       |        |        |
+Start batch job                                  | X       | X      | X      | X
+Cancel batch job                                 | X       |        |        |
+&nbsp;                                           |         |        |        |
+Create bulk download ticket                      |         |        |        |
+Get bulk download from tricket                   |         |        |        |
+&nbsp;                                           |         |        |        |
+Various upload strategies?                       |         |        |        |
+Engine upload                                    |         |        |        |
+&nbsp;                                           |         |        |        |
+Declare a packfile upload to container           |         |        |        |
+Upload to packfile                               |         |        |        |
+Complete packfile and listen for progress        |         |        |        |
+&nbsp;                                           |         |        |        |
+Set project template                             |         |        |        |
+Delete project template                          |         |        |        |
+Recalculate project template compliance          |         |        |        |
+Recalculate all project template compliance      |         |        |        |
+&nbsp;                                           |         |        |        |
+Get all devices                                  |         |        |        |
+Get device                                       |         |        |        |
+Get device statuses                              |         |        |        |
+Get current device                               |         |        |        |
+&nbsp;                                           |         |        |        |
+Get site configuration                           | X       | X      | X      | X
+Get site version                                 | X       | X      | X      | X
+&nbsp;                                           |         |        |        |
+_Delayed_                                        |         |        |        |
+Regenerate current user's API key                |         |        |        |
+Get user groups                                  |         |        |        |
+Get containers for user?                         |         |        |        |
+Clean out expired packfile progress              |         |        |        |
+Scan for and fix disconnected jobs               |         |        |        |
+Retry job                                        |         |        |        |
+List groups with projects the user can access    |         |        |        |
+Get schema                                       |         |        |        |
+Get job stats (redesign on the horizon)          |         |        |        |
+Get report                                       |         |        |        |
+Search?                                          |         |        |        |
+Search files?                                    |         |        |        |
+Search container?                                |         |        |        |
+Get all gear rules                               |         |        |        |
+Overwrite all gear rules                         |         |        |        |
+&nbsp;                                           |         |        |        |
+_Won't be implemented_                           |         |        |        |
+List known sites (depreciated)                   |         |        |        |
+Register a site (depreciated)                    |         |        |        |
+Get current user avatar (no point)               |         |        |        |
+Get user avatar (no point)                       |         |        |        |
+Get all jobs (depreciated)                       |         |        |        |
+Get job configuration (no point)                 |         |        |        |
 
 <!--
 
@@ -199,3 +201,4 @@ route('/<par_cont_name:groups>/<par_id:{gid}>/<cont_name:projects>', ContainerHa
 route('/<par_cont_name:{cname}>/<par_id:{cid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
 
 -->
+

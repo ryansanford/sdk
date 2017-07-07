@@ -7,7 +7,7 @@ import sys
 import os
 
 # Load the shared object file. Further details are added at the end of the file.
-bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheel.so'))
+bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheelBridge.so'))
 
 def test_bridge(s):
     """

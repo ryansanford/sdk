@@ -20,5 +20,12 @@ go run generator/*.go
 # go install -v flywheel.io/sdk/bridge/dist
 
 # Generate the C bridge
-echo
-go build -v -buildmode=c-shared -o dist/c/flywheel.so flywheel.io/sdk/bridge/dist
+echo "Building the C bridge..."
+go build -buildmode=c-shared -o dist/c/flywheelBridge.so flywheel.io/sdk/bridge/dist
+
+# Matlab wants a simpler copy of the header file
+cp dist/c/flywheelBridge.* dist/matlab/
+# Remove typedef and line precompiler directive, as they confuse matlab
+sed -i '/^typedef /d; /^\#line /d;' dist/matlab/flywheelBridge.h
+# Rename file
+mv dist/matlab/flywheelBridge.h dist/matlab/flywheelBridgeSimple.h
