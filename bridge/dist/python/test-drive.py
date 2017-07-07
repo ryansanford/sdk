@@ -154,10 +154,38 @@ assert acq['notes'][0]['text'] == 'This is a note'
 assert acq['files'][0]['name'] == filename
 assert acq['files'][0]['size'] == os.path.getsize('/tmp/download3.py')
 
+
+#
+## Collections
+#
+colId = fw.add_collection({
+	'label': rand_string(),
+	'description': rand_string(),
+})
+
+fw.add_sessions_to_collection(colId, [sessionId])
+fw.add_acquisitions_to_collection(colId, [acqId])
+
+collSessions = fw.get_collection_sessions(colId)
+assert len(collSessions) == 1
+
+collAqs = fw.get_collection_acquisitions(colId)
+assert len(collAqs) == 1
+
+fw.add_collection_note(colId, 'This is a note')
+
+fw.upload_file_to_collection(colId, filepath)
+fw.download_file_from_collection(colId, filename, '/tmp/download4.py')
+
+collection = fw.get_collection(colId)
+assert collection['notes'][0]['text'] == 'This is a note'
+assert acq['files'][0]['name'] == filename
+assert acq['files'][0]['size'] == os.path.getsize('/tmp/download4.py')
+
+
 #
 ## Gears
 #
-
 gearId = fw.add_gear({
 	'category': 'converter',
 	'exchange' : {

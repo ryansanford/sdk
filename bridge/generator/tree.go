@@ -16,6 +16,8 @@ type Signature struct {
 	Params  []*Param
 	Results []*Param
 
+	ShouldDeref bool
+
 	// various template conveniences
 
 	LastResultIndex int
@@ -37,31 +39,43 @@ func isStringExpr(ex ast.Expr) bool {
 	return ok && ident.Name == "string"
 }
 
-func isDataExpr(ex ast.Expr) (bool, string) {
+func isDataExpr(ex ast.Expr) (bool, string, bool) {
+
+	// Returns if ex is a data expr, the name of the expr, and if the value should be dereferenced
+
 	// might be an array of pointers; if so, unwrap
-	array, ok := ex.(*ast.ArrayType)
-	if ok {
+	array, isArray := ex.(*ast.ArrayType)
+	if isArray {
 		ex = array.Elt
 	}
 
-	pointer, ok := ex.(*ast.StarExpr)
-	if !ok {
-		return false, ""
+	// Might be an array of strings; if so, handle
+	// Should replace with more generic "json-serializable complex primitive" logic
+	// Which... is also the set of values that should be dereferenced
+	if isArray && isStringExpr(ex) {
+		return true, "[]string", false
 	}
 
+	// Otherwise, it must be a pointer to a struct; unwrap
+	pointer, ok := ex.(*ast.StarExpr)
+	if !ok {
+		return false, "", true
+	}
+
+	// Grab the pointer ident
 	ident, ok := pointer.X.(*ast.Ident)
 	if !ok {
-		return false, ""
+		return false, "", true
 	}
 	name := ident.Name
 
-	// Could replace with lexing later
-	whitelist := []string{"Acquisition", "Batch", "BatchProposal", "Client", "Config", "ContainerReference", "DeletedResponse", "Error", "FileReference", "Formula", "FormulaResult", "Gear", "GearDoc", "GearSource", "Group", "IdResponse", "Input", "Job", "JobLog", "JobLogStatement", "Key", "ModifiedResponse", "Note", "Origin", "Output", "Permission", "ProgressReader", "Project", "Result", "Session", "Subject", "Target", "UploadResponse", "UploadSource", "User", "Version"}
+	// Whitelist; could replace with lexing later
+	whitelist := []string{"Acquisition", "Batch", "BatchProposal", "Collection", "Client", "Config", "ContainerReference", "DeletedResponse", "Error", "FileReference", "Formula", "FormulaResult", "Gear", "GearDoc", "GearSource", "Group", "IdResponse", "Input", "Job", "JobLog", "JobLogStatement", "Key", "ModifiedResponse", "Note", "Origin", "Output", "Permission", "ProgressReader", "Project", "Result", "Session", "Subject", "Target", "UploadResponse", "UploadSource", "User", "Version"}
 
 	if stringInSlice(name, whitelist) {
-		return true, name
+		return true, "api." + name, true
 	} else {
-		return false, name
+		return false, name, true
 	}
 }
 

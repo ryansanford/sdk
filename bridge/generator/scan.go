@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	. "fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -27,16 +28,16 @@ func GenerateSignatures(path string) (*token.FileSet, *ParsedSignatures) {
 			Results:        []*Param{},
 			ParamDataName:  "",
 			ReturnDataName: "nil",
+			ShouldDeref:    true,
 		}
 
 		parameters := fn.Type.Params.List
 		for _, paramSet := range parameters {
-			// ast.Print(fset, paramSet.Type)
 
 			pt := "unknown"
 			cpt := "unknown"
 
-			dExpr, dname := isDataExpr(paramSet.Type)
+			dExpr, dname, shouldDeref := isDataExpr(paramSet.Type)
 
 			// Check param type
 			if isStringExpr(paramSet.Type) {
@@ -45,6 +46,14 @@ func GenerateSignatures(path string) (*token.FileSet, *ParsedSignatures) {
 			} else if dExpr {
 				pt = "data"
 				cpt = "*C.char"
+				if !shouldDeref {
+					signature.ShouldDeref = false
+				}
+			} else {
+				Println("Function", name, "has an unknown parameter:")
+				ast.Print(fset, paramSet.Type)
+				Println("---")
+				Println()
 			}
 
 			for _, param := range paramSet.Names {
@@ -67,8 +76,7 @@ func GenerateSignatures(path string) (*token.FileSet, *ParsedSignatures) {
 			pt := "unknown"
 			name := "unknown"
 
-			dExpr, dname := isDataExpr(field.Type)
-			_ = dname
+			dExpr, _, _ := isDataExpr(field.Type)
 
 			if isStringExpr(field.Type) {
 				pt = "string"
@@ -196,11 +204,13 @@ func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl
 			"UploadToProject",
 			"UploadToSession",
 			"UploadToAcquisition",
+			"UploadToCollection",
 			"Download",
 			"DownloadSimple",
 			"DownloadFromProject",
 			"DownloadFromSession",
 			"DownloadFromAcquisition",
+			"DownloadFromCollection",
 		}
 		if stringInSlice(name, blacklist) {
 			return false
