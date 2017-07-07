@@ -61,14 +61,14 @@ groupId = fw.add_group({
 })
 
 fw.add_group_tag(groupId, 'blue')
-fw.modify_group(groupId, {'name': 'testdrive'})
+fw.modify_group(groupId, {'label': 'testdrive'})
 
 groups = fw.get_all_groups()
 assert len(groups) > 0
 
 group = fw.get_group(groupId)
 assert group['tags'][0] == 'blue'
-assert group['name'] == 'testdrive'
+assert group['label'] == 'testdrive'
 
 
 #

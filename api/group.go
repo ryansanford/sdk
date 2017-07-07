@@ -9,7 +9,7 @@ import (
 
 type Group struct {
 	Id   string `json:"_id,omitempty"`
-	Name string `json:"name,omitempty"`
+	Name string `json:"label,omitempty"`
 
 	Created  *time.Time `json:"created,omitempty"`
 	Modified *time.Time `json:"modified,omitempty"`
@@ -40,9 +40,7 @@ func (c *Client) AddGroup(group *Group) (string, *http.Response, error) {
 	var response *IdResponse
 	var result string
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Post("groups?root=true").BodyJSON(group).Receive(&response, &aerr)
+	resp, err := c.New().Post("groups").BodyJSON(group).Receive(&response, &aerr)
 
 	if response != nil {
 		result = response.Id
@@ -90,9 +88,7 @@ func (c *Client) DeleteGroup(id string) (*http.Response, error) {
 	var aerr *Error
 	var response *DeletedResponse
 
-	// Should not require root flag
-	// https://github.com/scitran/core/issues/657
-	resp, err := c.New().Delete("groups/"+id+"?root=true").Receive(&response, &aerr)
+	resp, err := c.New().Delete("groups/"+id).Receive(&response, &aerr)
 
 	// Should not have to check this count
 	// https://github.com/scitran/core/issues/680
