@@ -64,10 +64,22 @@ Modify container                                 | X       | X      | X      | X
 Delete container                                 | X       | X      | X      | X
 Upload file to container                         | X       | X      | X      | X
 Download file from container                     | X       | X      | X      | X
-Upload note to a container                       | X       | X      | X      | X
+Add note to a container                          | X       | X      | X      | X
 Upload tag to a container                        | X       | X      | X      | X
 Get jobs that involve container                  |         |        |        |
-Support for collections                          |         |        |        |
+&nbsp;                                           |         |        |        |
+Get all collections                              | X       | X      | X      | X
+Get collection                                   | X       | X      | X      | X
+Add collection                                   | X       | X      | X      | X
+Modify collection                                | X       | X      | X      | X
+Add session to collection                        | X       | X      | X      | X
+Add acquisition to collection                    | X       | X      | X      | X
+Get collection's sessions                        | X       | X      | X      | X
+Get collection's acquisitions                    | X       | X      | X      | X
+Get collection's session's acquisitions          | X       | X      | X      | X
+Delete collection                                | X       | X      | X      | X
+Add note to a collection                         | X       | X      | X      | X
+&nbsp;                                           |         |        |        |
 Support for analyses                             |         |        |        |
 &nbsp;                                           |         |        |        |
 Resolve path to route                            |         |        |        |
@@ -138,72 +150,3 @@ Get current user avatar (no point)               |         |        |        |
 Get user avatar (no point)                       |         |        |        |
 Get all jobs (depreciated)                       |         |        |        |
 Get job configuration (no point)                 |         |        |        |
-
-<!--
-
-Left over for another day:
-
-
-prefix('/<cont_name:{cname}>', [
-
-	prefix('/<cid:{cid}>', [
-
-		route('/<list_name:tags>',                 TagsListHandler,                     m=['POST']),
-		route('/<list_name:tags>/<value:{tag}>',   TagsListHandler,                     m=['GET', 'PUT', 'DELETE']),
-
-		route('/<list_name:files>',                FileListHandler,                     m=['POST']),
-		route('/<list_name:files>/<name:{fname}>', FileListHandler,                     m=['GET', 'DELETE']),
-
-
-		route('/<list_name:analyses>', AnalysesHandler, m=['POST']),
-		# Could be in a prefix. Had weird syntax highlighting issues so leaving for another day
-		route('/<list_name:analyses>/<_id:{cid}>',                       AnalysesHandler,                  m=['GET', 'DELETE']),
-		route('/<list_name:analyses>/<_id:{cid}>/files',                 AnalysesHandler, h='download',    m=['GET']),
-		route('/<list_name:analyses>/<_id:{cid}>/files/<name:{fname}>',  AnalysesHandler, h='download',    m=['GET']),
-		route('/<list_name:analyses>/<_id:{cid}>/notes',                 AnalysesHandler, h='add_note',    m=['POST']),
-		route('/<list_name:analyses>/<_id:{cid}>/notes/<note_id:{cid}>', AnalysesHandler, h='delete_note', m=['DELETE']),
-		route('/<list_name:notes>',                                      NotesListHandler,                 m=['POST']),
-		route('/<list_name:notes>/<_id:{nid}>',                          NotesListHandler, name='notes',   m=['GET', 'PUT', 'DELETE']),
-	])
-]),
-
-
-prefix('/<cont_name:groups>', [
-	route('/<cid:{gid}>/<list_name:roles>',                          ListHandler,     m=['POST']),
-	route('/<cid:{gid}>/<list_name:roles>/<site:{sid}>/<_id:{uid}>', ListHandler,     m=['GET', 'PUT', 'DELETE']),
-
-	route('/<cid:{gid}>/<list_name:tags>',                           TagsListHandler, m=['POST']),
-	route('/<cid:{gid}>/<list_name:tags>/<value:{tag}>',             TagsListHandler, m=['GET', 'PUT', 'DELETE']),
-]),
-
-
-
-
-# Collections
-
-route( '/collections',                 CollectionsHandler, h='get_all',                    m=['GET']),
-route( '/collections',                 CollectionsHandler,                                 m=['POST']),
-prefix('/collections', [
-	route('/curators',                 CollectionsHandler, h='curators',                   m=['GET']),
-	route('/<cid:{cid}>',              CollectionsHandler,                                 m=['GET', 'PUT', 'DELETE']),
-	route('/<cid:{cid}>/sessions',     CollectionsHandler, h='get_sessions',               m=['GET']),
-	route('/<cid:{cid}>/acquisitions', CollectionsHandler, h='get_acquisitions',           m=['GET']),
-]),
-
-
-# Collections / Projects
-
-prefix('/<cont_name:collections|projects>', [
-	prefix('/<cid:{cid}>', [
-		route('/<list_name:permissions>',                          PermissionsListHandler, m=['POST']),
-		route('/<list_name:permissions>/<site:{sid}>/<_id:{uid}>', PermissionsListHandler, m=['GET', 'PUT', 'DELETE']),
-	]),
-]),
-
-# Misc (to be cleaned up later)
-
-route('/<par_cont_name:groups>/<par_id:{gid}>/<cont_name:projects>', ContainerHandler, h='get_all', m=['GET']),
-route('/<par_cont_name:{cname}>/<par_id:{cid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
-
--->
-

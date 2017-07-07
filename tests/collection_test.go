@@ -106,3 +106,32 @@ func (t *F) TestCollections() {
 	t.So(err, ShouldBeNil)
 	t.So(collections, ShouldNotContain, savedCollection)
 }
+
+func (t *F) TestCollectionFiles() {
+	collection := &api.Collection{Name: RandString()}
+	collectionId, _, err := t.AddCollection(collection)
+	t.So(err, ShouldBeNil)
+
+	src := UploadSourceFromString("yeats.txt", "Surely some revelation is at hand;")
+	progress, resultChan := t.UploadToCollection(collectionId, src)
+
+	// Last update should be the full string length.
+	t.checkProgressChanEndsWith(progress, 34)
+	t.So(<-resultChan, ShouldBeNil)
+
+	rCollection, _, err := t.GetCollection(collectionId)
+	t.So(err, ShouldBeNil)
+	t.So(rCollection.Files, ShouldHaveLength, 1)
+	t.So(rCollection.Files[0].Name, ShouldEqual, "yeats.txt")
+	t.So(rCollection.Files[0].Size, ShouldEqual, 34)
+	t.So(rCollection.Files[0].Mimetype, ShouldEqual, "text/plain")
+
+	// Download the same file
+	buffer, dest := DownloadSourceToBuffer()
+	progress, resultChan = t.DownloadFromCollection(collectionId, "yeats.txt", dest)
+
+	// Last update should be the full string length.
+	t.checkProgressChanEndsWith(progress, 34)
+	t.So(<-resultChan, ShouldBeNil)
+	t.So(buffer.String(), ShouldEqual, "Surely some revelation is at hand;")
+}
