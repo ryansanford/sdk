@@ -23,7 +23,7 @@ func (t *F) TestGetVersion() {
 	version, _, err := t.GetVersion()
 	t.So(err, ShouldBeNil)
 
-	// Eh, a vaugely-modern database number
+	// Eh, a vaguely-modern database number
 	t.So(version.Database, ShouldBeGreaterThan, 20)
 }
 

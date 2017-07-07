@@ -12,7 +12,7 @@ type Formula struct {
 	Outputs []*Output `json:"outputs"`
 }
 
-// Input describes an asset that must be present for the forumla to execute.
+// Input describes an asset that must be present for the formula to execute.
 type Input struct {
 	Type     string `json:"type,omitempty"`
 	URI      string `json:"uri,omitempty"`

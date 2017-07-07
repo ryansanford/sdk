@@ -1,7 +1,9 @@
 # Flywheel SDK
 
-A golang SDK for interaction with a remote Flywheel instance.
+An SDK for interaction with a remote Flywheel instance, in Golang, Python, and Matlab!
 
+[![GoDoc](https://godoc.org/github.com/flywheel-io/sdk/api?status.svg)](https://godoc.org/github.com/flywheel-io/sdk/api)
+[![Report Card](https://goreportcard.com/badge/github.com/flywheel-io/sdk)](https://goreportcard.com/report/github.com/flywheel-io/sdk)
 [![Build status](https://circleci.com/gh/flywheel-io/sdk/tree/master.svg?style=shield)](https://circleci.com/gh/flywheel-io/sdk)
 
 ## Building
@@ -13,6 +15,7 @@ ln -s workspace/src/flywheel.io/sdk sdk
 ./sdk/make.sh
 ```
 
+This builds the golang SDK.<br/>
 For other languages, check out the [bridge readme](bridge).
 
 ## Testing

@@ -39,7 +39,7 @@ func NewProgressReader(r io.Reader, p chan<- int64) *ProgressReader {
 	return pr
 }
 
-// start will ocassionally report the bytes read to the progress channel.
+// start will occasionally report the bytes read to the progress channel.
 // Automatically fired in a new goroutine by NewProgressReader.
 func (r *ProgressReader) start() {
 	work := true

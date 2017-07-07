@@ -24,7 +24,7 @@ type User struct {
 	ApiKey    *Key   `json:"api_key,omitempty"`
 
 	Avatar  string            `json:"avatar,omitempty"`
-	Avatars map[string]string `json:"avatar,omitempty"`
+	Avatars map[string]string `json:"avatars,omitempty"`
 
 	Created    *time.Time `json:"created,omitempty"`
 	Modified   *time.Time `json:"modified,omitempty"`
