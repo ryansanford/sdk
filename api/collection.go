@@ -25,6 +25,20 @@ type Collection struct {
 	Permissions []*Permission `json:"permissions,omitempty"`
 }
 
+type collectionNode struct {
+	Id    string `json:"_id,omitempty"`
+	Level string `json:"level,omitempty"`
+}
+
+type collectionOperation struct {
+	Operation string            `json:"operation,omitempty"`
+	Nodes     []*collectionNode `json:"nodes,omitempty"`
+}
+
+type collectionSubmission struct {
+	Contents *collectionOperation `json:"contents,omitempty"`
+}
+
 func (c *Client) GetAllCollections() ([]*Collection, *http.Response, error) {
 	var aerr *Error
 	var collections []*Collection
@@ -74,15 +88,27 @@ func (c *Client) AddCollection(collection *Collection) (string, *http.Response, 
 	return result, resp, Coalesce(err, aerr)
 }
 
-func (c *Client) AddCollectionNote(id, text string) (*http.Response, error) {
+func (c *Client) addNodesToCollection(id, nodeType string, nodeIds []string) (*http.Response, error) {
 	var aerr *Error
 	var response *ModifiedResponse
 
-	note := &Note{
-		Text: text,
+	var nodes []*collectionNode
+
+	for _, acqId := range nodeIds {
+		nodes = append(nodes, &collectionNode{
+			Id:    acqId,
+			Level: nodeType,
+		})
 	}
 
-	resp, err := c.New().Post("collections/"+id+"/notes").BodyJSON(note).Receive(&response, &aerr)
+	submit := &collectionSubmission{
+		Contents: &collectionOperation{
+			Operation: "add",
+			Nodes:     nodes,
+		},
+	}
+
+	resp, err := c.New().Put("collections/"+id).BodyJSON(submit).Receive(&response, &aerr)
 
 	// Should not have to check this count
 	// https://github.com/scitran/core/issues/680
@@ -93,16 +119,23 @@ func (c *Client) AddCollectionNote(id, text string) (*http.Response, error) {
 	return resp, Coalesce(err, aerr)
 }
 
-func (c *Client) AddCollectionTag(id, tag string) (*http.Response, error) {
+func (c *Client) AddAcquisitionsToCollection(id string, aqids []string) (*http.Response, error) {
+	return c.addNodesToCollection(id, "acquisition", aqids)
+}
+
+func (c *Client) AddSessionsToCollection(id string, sessionids []string) (*http.Response, error) {
+	return c.addNodesToCollection(id, "session", sessionids)
+}
+
+func (c *Client) AddCollectionNote(id, text string) (*http.Response, error) {
 	var aerr *Error
 	var response *ModifiedResponse
 
-	var tagDoc interface{}
-	tagDoc = map[string]interface{}{
-		"value": tag,
+	note := &Note{
+		Text: text,
 	}
 
-	resp, err := c.New().Post("collections/"+id+"/tags").BodyJSON(tagDoc).Receive(&response, &aerr)
+	resp, err := c.New().Post("collections/"+id+"/notes").BodyJSON(note).Receive(&response, &aerr)
 
 	// Should not have to check this count
 	// https://github.com/scitran/core/issues/680
