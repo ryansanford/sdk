@@ -4,7 +4,7 @@ jobs:
     build:
         # The local circleci binary does not support relative directories.
         # They plan to remove this limitation in the future.
-        # Ref: https://circleci.com/docs/2.0/local-jobs/#relative-path-for-workingdirectory
+        # Ref: https://circleci.com/docs/2.0/local-jobs/#relative-path-for-working_directory
         working_directory: "/workspace/src/flywheel.io/sdk"
 
         docker:
@@ -12,7 +12,7 @@ jobs:
               environment:
                 # These make local builds faster by virtue of the source directory mount.
                 # Would be better to get caching in the local build environment and remove this section.
-                # Ref: https://discuss.circleci.com/t/caching-in-the-local-environment/12005
+                # Ref: https://discuss.circleci.com/t/caching-in-the-local-2-0-environment/13542
                 GIMME_ENV_PREFIX: "./.gimme/envs"
                 GIMME_VERSION_PREFIX: "./.gimme/versions"
 
@@ -29,7 +29,7 @@ jobs:
 
             - image: nginx:stable
               environment:
-                # This config is represtitive of Flywheel systems in production as of 2017-05-22
+                # This config is representative of Flywheel systems in production as of 2017-05-22
                 NGINX_CONF: |
                   server {
                     listen 8080;
