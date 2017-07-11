@@ -45,6 +45,22 @@ type ModifiedResponse struct {
 	ModifiedCount int `json:"modified"`
 }
 
+// SourceResponse for the SearchResponse
+type SourceResponse struct {
+	Project 	*Project 	 	`json:"project,omitempty"`
+	Group		*Group		 	`json:"group,omitempty"`
+	Session		*Session	 	`json:"session,omitempty"`
+	Acquisition	*Acquisition 	`json:"acquisition,omitempty"`
+	Subject		*Subject		`json:"subject,omitempty"`
+	File 		*File 			`json:"file,omitempty"`
+}
+
+// SearchResponse is used for endpoints of data_explorer
+type SearchResponse struct {
+	Id 		string				`json:"_id"`
+	Source	*SourceResponse		`json:"_source,omitempty"`
+}
+
 // DeleteResponse is used for endpoints that respond with a count of deleted objects.
 type DeletedResponse struct {
 	DeletedCount int `json:"deleted"`
