@@ -56,8 +56,10 @@ func (t *F) TestSessions() {
 	rSession.Notes = nil
 	rSession.Tags = nil
 	rSession.Info = nil
-	rSession.Subject.Firstname = ""
-	rSession.Subject.Lastname = ""
+	rSession.Subject = &api.Subject{
+		Id:   rSession.Subject.Id,
+		Code: rSession.Subject.Code,
+	}
 	t.So(sessions, ShouldContain, rSession)
 
 	// Get from parent
