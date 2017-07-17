@@ -141,7 +141,7 @@ jobs:
             # CircleCI wants their 'store_test_results' path to be a folder; oblige them!
             - run:
                 name: Test fiddling
-                command: cat .report.xml; mkdir -p circle-tests; mv .report.xml circle-tests/
+                command: test -f .report.xml && ( cat .report.xml; mkdir -p circle-tests; mv .report.xml circle-tests/ ) || true
                 when: always
 
             - store_test_results:

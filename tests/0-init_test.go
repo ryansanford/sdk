@@ -58,6 +58,20 @@ import (
 //
 // Functions without these prefixes are ignored.
 func TestSuite(t *testing.T) {
+
+	// Workaround:
+	//
+	// In CI, the client can lag for awhile waiting for the API to become available.
+	// This inflates the timing of the first GO_MAXPROCS unit tests, making them look artificially slow.
+	//
+	// In an attempt to combat this, let's query to the API once, ignoring results and any errors.
+	// Hopefully, this moves timing to the suite and out of the individual tests.
+	workAroundClient := makeClient()
+	// begin := time.Now()
+	workAroundClient.GetCurrentUser()
+	// duration := time.Since(begin)
+	// PrintFormat("Connecting to the API took " + duration.String())
+
 	gunit.Run(new(F), t)
 }
 
