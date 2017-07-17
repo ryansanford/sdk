@@ -2,9 +2,11 @@
 /.gimme-tmp/
 /vendor/
 /.coverage.out
+/.report.xml
 /coverage.html
 
 # Ref comment in .circleci/config.yml
 /.glide/
 /.gimme/
-/glide
+/.circleci/glide
+/.circleci/go-junit-report

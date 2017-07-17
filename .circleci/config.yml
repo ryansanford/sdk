@@ -10,6 +10,8 @@ jobs:
         docker:
             - image: buildpack-deps:zesty
               environment:
+                # Enable the installation and use of junit XML output
+                MakeGenerateJunit: "1"
                 # These make local builds faster by virtue of the source directory mount.
                 # Would be better to get caching in the local build environment and remove this section.
                 # Ref: https://discuss.circleci.com/t/caching-in-the-local-2-0-environment/13542
@@ -72,12 +74,12 @@ jobs:
             - restore_cache:
                 key: sdk-golang-1-{{ checksum "make.sh"}}-{{ checksum "glide.lock" }}
 
-            # This is a hack to prevent downloading glide on every file change when iterating locally.
+            # This is a hack to prevent downloading glide / Junit on every file change when iterating locally.
             # Users can keep a copy of the glide binary in the repo folder and have that be used instead.
             # As before, it would be better to get caching in the local build environment...
             - run:
-                name: "[Hack] Check for Local Glide"
-                command: mkdir -p /workspace/bin/ && test -f ./glide -a -x ./glide && cp ./glide /workspace/bin/glide || true
+                name: "[Hack] Check for Local Glide / Junit"
+                command: copy() { test -f ./.circleci/$1 -a -x ./.circleci/$1 && cp ./.circleci/$1 /workspace/bin/$1 || true; }; mkdir -p /workspace/bin; copy glide; copy go-junit-report
 
             - run:
                 name: Install Dependencies
@@ -133,8 +135,17 @@ jobs:
 
             - run:
                 name: Cleanup
-                command: rm -rf /workspace/bin/glide /workspace/bin/sdk
+                command: cd /workspace/bin; rm -f glide sdk go-junit-report
                 when: always
+
+            # CircleCI wants their 'store_test_results' path to be a folder; oblige them!
+            - run:
+                name: Test fiddling
+                command: cat .report.xml; mkdir -p circle-tests; mv .report.xml circle-tests/
+                when: always
+
+            - store_test_results:
+                path: circle-tests
 
             - store_artifacts:
                 path: "/workspace/bin"
@@ -147,6 +158,3 @@ jobs:
             - store_artifacts:
                 path: "/workspace/src/flywheel.io/sdk/coverage.html"
                 destination: coverage
-
-            # - store_test_results:
-            #     path: test-reports/
