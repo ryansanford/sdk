@@ -2,6 +2,9 @@
 set -euo pipefail
 unset CDPATH; cd "$( dirname "${BASH_SOURCE[0]}" )"; cd "`pwd -P`"
 
+# Get system info
+localOs=$( uname -s | tr '[:upper:]' '[:lower:]' )
+
 # Clean
 rm -f dist/bridge.go dist/python/flywheel.py dist/c/flywheel.h
 
@@ -21,7 +24,12 @@ go run generator/*.go
 
 # Generate the C bridge
 echo "Building the C bridge..."
-go build -buildmode=c-shared -o dist/c/flywheelBridge.so flywheel.io/sdk/bridge/dist
+if [[ "$localOs" == "darwin" ]]; then
+    ext="dylib"
+else
+    ext="so"
+fi
+go build -buildmode=c-shared -o dist/c/flywheelBridge.$ext flywheel.io/sdk/bridge/dist
 
 # Matlab wants a simpler copy of the header file
 cp dist/c/flywheelBridge.* dist/matlab/
