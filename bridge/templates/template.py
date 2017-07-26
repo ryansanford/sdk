@@ -6,8 +6,23 @@ import six
 import sys
 import os
 
+
+# Detect platform
+# https://docs.python.org/2/library/sys.html#sys.platform
+# https://docs.python.org/3/library/sys.html#sys.platform
+_platform = sys.platform
+
+if _platform.startswith('linux') or _platform.startswith('freebsd'):
+    _filename = 'flywheelBridge.so'    # Linux-ish
+elif _platform.startswith('darwin'):
+    _filename = 'flywheelBridge.dylib' # OSX
+elif _platform.startswith('win') or _platform.startswith('cygwin'):
+    _filename = 'flywheelBridge.so'    # Windows-ish
+else:
+    _filename = 'flywheelBridge.so'    # Guess
+
 # Load the shared object file. Further details are added at the end of the file.
-bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c/flywheelBridge.so'))
+bridge = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), '../c', _filename))
 
 def test_bridge(s):
     """
