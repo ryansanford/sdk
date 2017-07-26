@@ -6,7 +6,10 @@ unset CDPATH; cd "$( dirname "${BASH_SOURCE[0]}" )"; cd "`pwd -P`"
 localOs=$( uname -s | tr '[:upper:]' '[:lower:]' )
 
 # Clean
-rm -f dist/bridge.go dist/python/flywheel.py dist/c/flywheel.h
+set +e
+find dist -type f | grep -E 'flywheelBridge(Simple)?.(so|dylib|h)' | xargs rm -f
+rm -f dist/bridge.go dist/python/flywheel.py dist/matlab/Flywheel.m
+set -e
 
 # Ensure the SDK is ready
 ../make.sh
