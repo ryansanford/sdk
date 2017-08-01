@@ -45,7 +45,7 @@ func (t *F) TestBatch() {
 	rBatch, _, err := t.GetBatch(proposal.Id)
 	t.So(err, ShouldBeNil)
 	t.So(rBatch.GearId, ShouldEqual, proposal.GearId)
-	t.So(rBatch.State, ShouldEqual, api.BatchPending)
+	t.So(rBatch.State, ShouldEqual, api.Pending)
 
 	// Get all
 	batches, _, err := t.GetAllBatches()
@@ -60,7 +60,7 @@ func (t *F) TestBatch() {
 	// Get again
 	rBatch2, _, err := t.GetBatch(proposal.Id)
 	t.So(err, ShouldBeNil)
-	t.So(rBatch2.State, ShouldEqual, api.BatchRunning)
+	t.So(rBatch2.State, ShouldEqual, api.Running)
 	t.So(*rBatch2.Modified, ShouldHappenAfter, *rBatch.Modified)
 
 	// Cancel

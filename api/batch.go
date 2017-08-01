@@ -5,23 +5,12 @@ import (
 	"time"
 )
 
-// Enum for batch states.
-type BatchState string
-
-// Distinct from JobState:
-// https://github.com/scitran/core/issues/710
-const (
-	BatchPending   BatchState = "pending"
-	BatchRunning   BatchState = "launched"
-	BatchCancelled BatchState = "cancelled"
-)
-
 type Batch struct {
 	Id     string `json:"_id,omitempty"`
 	GearId string `json:"gear_id,omitempty"`
 
-	State  BatchState `json:"state,omitempty"`
-	Origin *Origin    `json:"origin,omitempty"`
+	State  JobState `json:"state,omitempty"`
+	Origin *Origin  `json:"origin,omitempty"`
 
 	Config map[string]interface{} `json:"config,omitempty"`
 	JobIds []string               `json:"jobs,omitempty"`
