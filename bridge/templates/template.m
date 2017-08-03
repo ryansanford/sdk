@@ -60,6 +60,9 @@ classdef Flywheel
         % AUTO GENERATED CODE ENDS
     end
     methods (Static)
+        function version = getSdkVersion()
+            version = '{{.Version}}';
+        end
         function structFromJson = handleJson(statusPtr,ptrValue)
             % Handle JSON using JSONlab
             statusValue = statusPtr.Value;

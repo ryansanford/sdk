@@ -224,3 +224,42 @@ func GetRelevantFunctionSignatures(path string) (*token.FileSet, []*ast.FuncDecl
 
 	return fset, funcs
 }
+
+func DetectSDKVersion(path string) string {
+
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+	check(err)
+
+	for _, decl := range file.Decls {
+
+		// Filter on general declarations
+		gen, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+
+		for _, spec := range gen.Specs {
+			// Filter on value specifications
+			value, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+
+			// Version decl only has one name and one value
+			if len(value.Names) != 1 || len(value.Values) != 1 {
+				continue
+			}
+
+			if value.Names[0].Name == "Version" {
+				escapedVersion := value.Values[0].(*ast.BasicLit).Value
+
+				// AST includes quotations; remove those so we can have a 'raw' string value
+				return strings.Replace(escapedVersion, "\"", "", -1)
+			}
+		}
+	}
+
+	Println("Warning: Could not detect SDK version.")
+	return "unknown"
+}

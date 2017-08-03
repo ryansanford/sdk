@@ -73,6 +73,14 @@ class Flywheel:
                 msg = 'Unknown error (status ' + str(status_code) + ').'
             raise FlywheelException(msg)
 
+    @staticmethod
+    def get_sdk_version():
+        """
+        Returns the release version of the Flywheel SDK.
+        """
+
+        return '{{.Version}}'
+
     #
     # AUTO GENERATED CODE FOLLOWS
     #
