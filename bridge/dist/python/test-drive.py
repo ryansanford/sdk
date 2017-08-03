@@ -16,6 +16,8 @@ def rand_string():
 # Check that data can flow back & forth across the bridge
 bridge_response = flywheel.test_bridge('world')
 assert bridge_response == 'Hello world'
+# Check SDK version
+assert len(flywheel.Flywheel.get_sdk_version()) > 0
 
 # Get API get from environment
 api_key = os.environ['SdkTestKey']

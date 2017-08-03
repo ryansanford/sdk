@@ -17,6 +17,9 @@ func main() {
 	fset, sigs := GenerateSignatures("../api")
 	_ = fset
 
+	// Detect the SDK version and add that to template struct
+	sigs.Version = DetectSDKVersion("../sdk.go")
+
 	// Load templates and execute
 	for _, printer := range printers {
 		Println("Generating", printer.Name(), "code...")

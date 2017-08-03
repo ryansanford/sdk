@@ -32,6 +32,8 @@ type Signature struct {
 // This is a full struct instead of a type alias for text-templating reasons
 type ParsedSignatures struct {
 	Signatures []*Signature
+
+	Version string
 }
 
 func isStringExpr(ex ast.Expr) bool {
