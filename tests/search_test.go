@@ -9,7 +9,7 @@ import (
 )
 
 // Ref https://github.com/flywheel-io/sdk/issues/31
-func (t *F) SkipTestSearch() {
+func (t *F) TestSearch() {
 	_, _, sessionId, acquisitionId := t.createTestAcquisition()
 
 	// Get Acquisition
@@ -31,7 +31,6 @@ func (t *F) SkipTestSearch() {
 
 	s = &api.SearchQuery{
 		ReturnType:   "acquisition",
-		SearchString: a.Name,
 	}
 
 	sR, _, err = t.Search(s)

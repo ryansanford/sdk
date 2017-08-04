@@ -45,27 +45,6 @@ type ModifiedResponse struct {
 	ModifiedCount int `json:"modified"`
 }
 
-// SourceResponse for the SearchResponse
-type SourceResponse struct {
-	Project     map[string]interface{} `json:"project,omitempty"`
-	Group       map[string]interface{} `json:"group,omitempty"`
-	Session     map[string]interface{} `json:"session,omitempty"`
-	Acquisition map[string]interface{} `json:"acquisition,omitempty"`
-	Subject     map[string]interface{} `json:"subject,omitempty"`
-	File        map[string]interface{} `json:"file,omitempty"`
-}
-
-// SearchResponse is used for endpoints of data_explorer
-type SearchResponse struct {
-	Id     string          `json:"_id"`
-	Source *SourceResponse `json:"_source,omitempty"`
-}
-
-// Because the endpoint returns a key results which is a list of responses
-type SearchResponseList struct {
-	Results []*SearchResponse `json:"results,omitempty"`
-}
-
 // DeleteResponse is used for endpoints that respond with a count of deleted objects.
 type DeletedResponse struct {
 	DeletedCount int `json:"deleted"`
