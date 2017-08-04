@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-// Enum for job states.
+// Enum for Return Types.
 type SearchType string
 
 const (
@@ -16,24 +16,70 @@ const (
 
 // A single search query made to the API
 type SearchQuery struct {
-	ReturnType string `json:"return_type"` // REQUIRED file|acquisition|session|analysis
+	ReturnType SearchType `json:"return_type"` // REQUIRED file|acquisition|session|analysis
 
-	SearchString string   `json:"search_string,omitempty"` // OPTIONAL KEY any string including spaces and special characters
-	AllData      bool     `json:"all_data,omitempty"`      // OPTIONAL, DEFAULTS TO FALSE true|false
-	Filters      []string `json:"filters,omitempty"`       // A LIST OF ES FILTERS, OPTIONAL KEY, find list of available filters here: https://www.elastic.co/guide/en/elasticsearch/reference/current/term-level-queries.html
-	Size         string   `json:"size,omitempty"`          // OPTIONAL KEY if it is all, all files/other containers are returned
+	SearchString string        `json:"search_string,omitempty"` // OPTIONAL KEY any string including spaces and special characters
+	AllData      bool          `json:"all_data,omitempty"`      // OPTIONAL, DEFAULTS TO FALSE true|false
+	Filters      []interface{} `json:"filters,omitempty"`       // A LIST OF ES FILTERS, OPTIONAL KEY, find list of available filters here: https://www.elastic.co/guide/en/elasticsearch/reference/current/term-level-queries.html
+	Size         string        `json:"size,omitempty"`          // OPTIONAL KEY if it is all, all files/other containers are returned
+}
+
+type ProjectSearchResponse struct {
+	Id   string `json:"_id,omitempty"`
+	Name string `json:"label,omitempty"`
+}
+type GroupSearchResponse struct {
+	Id   string `json:"_id,omitempty"`
+	Name string `json:"label,omitempty"`
+}
+
+// Runnning into Parsing errors when using time.Time
+type SessionSearchResponse struct {
+	Id        string `json:"_id,omitempty"`
+	Archived  bool   `json:"archived,omitempty"`
+	Name      string `json:"label,omitempty"`
+	Timestamp string `json:"timestamp,omitempty"`
+	Created   string `json:"created,omitempty"`
+}
+type AcquisitionSearchResponse struct {
+	Id        string `json:"_id,omitempty"`
+	Archived  bool   `json:"archived,omitempty"`
+	Name      string `json:"label,omitempty"`
+	Timestamp string `json:"timestamp,omitempty"`
+	Created   string `json:"created,omitempty"`
+}
+type SubjectSearchResponse struct {
+	Code string `json:"code,omitempty"`
+}
+type FileSearchResponse struct {
+	Measurements []string `json:"measurements,omitempty"`
+	Created      string   `json:"created,omitempty"`
+	Type         string   `json:"type,omitempty"`
+	Name         string   `json:"name,omitempty"`
+	Size         int      `json:"size,omitempty"`
+}
+type AnalysisSearchResponse struct {
+	Id      string `json:"_id,omitempty"`
+	Name    string `json:"label,omitempty"`
+	User    string `json:"user,omitempty"`
+	Created string `json:created,omitempty"`
+}
+type ParentSearchResponse struct {
+	Type string `json:"type,omitempty"`
+	Id   string `json:"_id,omitempty"`
 }
 
 // SourceResponse for the SearchResponse
 type SourceResponse struct {
-	Project     map[string]interface{} `json:"project,omitempty"`
-	Group       map[string]interface{} `json:"group,omitempty"`
-	Session     map[string]interface{} `json:"session,omitempty"`
-	Acquisition map[string]interface{} `json:"acquisition,omitempty"`
-	Subject     map[string]interface{} `json:"subject,omitempty"`
-	File        map[string]interface{} `json:"file,omitempty"`
-	Permissions []*Permission          `json:"permissions,omitempty"`
-	Analysis    map[string]interface{} `json:"analysis,omitempty"`
+	Project     *ProjectSearchResponse     `json:"project,omitempty"`
+	Group       *GroupSearchResponse       `json:"group,omitempty"`
+	Session     *SessionSearchResponse     `json:"session,omitempty"`
+	Acquisition *AcquisitionSearchResponse `json:"acquisition,omitempty"`
+	Subject     *SubjectSearchResponse     `json:"subject,omitempty"`
+	File        *FileSearchResponse        `json:"file,omitempty"`
+	Permissions []*Permission              `json:"permissions,omitempty"`
+	Analysis    *AnalysisSearchResponse    `json:"analysis,omitempty"`
+	Parent      *ParentSearchResponse      `json:"parent,omitempty"`
 }
 
 // SearchResponse is used for endpoints of data_explorer
