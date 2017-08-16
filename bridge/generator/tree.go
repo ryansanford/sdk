@@ -5,9 +5,10 @@ import (
 )
 
 type Param struct {
-	Name  string
-	Type  string
-	CType string
+	Name    string
+	Type    string
+	CgoType string
+	CType   string
 }
 
 // An accessible representation of a function signature used for templating.

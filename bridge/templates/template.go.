@@ -123,7 +123,7 @@ func TestBridge(name *C.char) *C.char {
 
 {{range .Signatures}}
 //export {{.Name}}
-func {{.Name}}(apiKey *C.char{{range .Params}}, {{.Name}} {{.CType}}{{end}}, status *C.int) *C.char {
+func {{.Name}}(apiKey *C.char{{range .Params}}, {{.Name}} {{.CgoType}}{{end}}, status *C.int) *C.char {
 	{{range .Params}}{{if or (eq .Type "string") (eq .Type "data")}}{{.Name}}Go := C.GoString({{.Name}})
 	{{end}}{{end}}{{if ne .ParamDataName ""}}
 	var parsed{{.ParamDataName}} {{.ParamDataType}}

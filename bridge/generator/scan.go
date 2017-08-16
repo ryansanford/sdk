@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "encoding/json"
 	"errors"
 	. "fmt"
 	"go/ast"
@@ -35,17 +36,21 @@ func GenerateSignatures(path string) (*token.FileSet, *ParsedSignatures) {
 		for _, paramSet := range parameters {
 
 			pt := "unknown"
-			cpt := "unknown"
+			cgpt := "unknown"
+			ct := "unknown"
 
 			dExpr, dname, shouldDeref := isDataExpr(paramSet.Type)
 
 			// Check param type
 			if isStringExpr(paramSet.Type) {
 				pt = "string"
-				cpt = "*C.char"
+				cgpt = "*C.char"
+				ct = "char*"
 			} else if dExpr {
 				pt = "data"
-				cpt = "*C.char"
+				cgpt = "*C.char"
+				ct = "char*"
+
 				if !shouldDeref {
 					signature.ShouldDeref = false
 				}
@@ -58,9 +63,10 @@ func GenerateSignatures(path string) (*token.FileSet, *ParsedSignatures) {
 
 			for _, param := range paramSet.Names {
 				signature.Params = append(signature.Params, &Param{
-					Name:  param.Name,
-					Type:  pt,
-					CType: cpt,
+					Name:    param.Name,
+					Type:    pt,
+					CgoType: cgpt,
+					CType:   ct,
 				})
 
 				if pt == "data" {
