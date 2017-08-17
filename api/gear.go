@@ -26,8 +26,8 @@ type Gear struct {
 	Maintainer string `json:"maintainer,omitempty"`
 	License    string `json:"license,omitempty"`
 
-	Source string `json:"source,omitempty"`
-	Url    string `json:"url,omitempty"`
+	Source string `json:"source"`
+	Url    string `json:"url"`
 
 	Custom map[string]interface{} `json:"custom,omitempty"`
 }
