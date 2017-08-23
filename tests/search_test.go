@@ -23,7 +23,7 @@ func (t *F) SkipTestSearch() {
 		SearchString: a.Name,
 	}
 
-	sR, _, err := t.Search(s)
+	sR, _, err := t.SearchRaw(s)
 	// t.So(a.Name, ShouldBeNil)
 	t.So(err, ShouldBeNil)
 	t.So(len(sR.Results), ShouldEqual, 1)
@@ -34,9 +34,32 @@ func (t *F) SkipTestSearch() {
 		SearchString: a.Name,
 	}
 
-	sR, _, err = t.Search(s)
+	sR, _, err = t.SearchRaw(s)
 	// t.So(a.Name, ShouldBeNil)
 	t.So(err, ShouldBeNil)
 	t.So(len(sR.Results), ShouldEqual, 1)
 	t.So(sR.Results[0].Source.Acquisition.Id, ShouldEqual, acquisitionId)
+
+
+	s = &api.SearchQuery{
+		ReturnType:   api.SessionString,
+		SearchString: a.Name,
+	}
+
+	sC, _, err := t.Search(s)
+	// t.So(a.Name, ShouldBeNil)
+	t.So(err, ShouldBeNil)
+	t.So(len(sC), ShouldEqual, 1)
+	t.So(sC[0].Session.Id, ShouldEqual, sessionId)
+
+	s = &api.SearchQuery{
+		ReturnType:   api.AcquisitionString,
+		SearchString: a.Name,
+	}
+
+	sC, _, err = t.Search(s)
+	// t.So(a.Name, ShouldBeNil)
+	t.So(err, ShouldBeNil)
+	t.So(len(sC), ShouldEqual, 1)
+	t.So(sC[0].Acquisition.Id, ShouldEqual, acquisitionId)
 }
