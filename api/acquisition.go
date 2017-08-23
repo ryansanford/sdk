@@ -130,6 +130,26 @@ func (c *Client) UploadToAcquisition(id string, files ...*UploadSource) (chan in
 	return c.UploadSimple(url, nil, files...)
 }
 
+func (c *Client) ModifyAcquisitionFile(id string, filename string, attributes *FileFields) (*http.Response, *ModifiedAndJobsResponse, error) {
+	url := "acquisitions/" + id + "/files/" + filename
+	return c.modifyFileAttrs(url, attributes)
+}
+
+func (c *Client) SetAcquisitionFileInfo(id string, filename string, set map[string]interface{}) (*http.Response, error) {
+	url := "acquisitions/" + id + "/files/" + filename + "/info"
+	return c.setInfo(url, set)
+}
+
+func (c *Client) ReplaceAcquisitionFileInfo(id string, filename string, replace map[string]interface{}) (*http.Response, error) {
+	url := "acquisitions/" + id + "/files/" + filename + "/info"
+	return c.replaceInfo(url, replace)
+}
+
+func (c *Client) DeleteAcquisitionFileInfoFields(id string, filename string, keys []string) (*http.Response, error) {
+	url := "acquisitions/" + id + "/files/" + filename + "/info"
+	return c.deleteInfoFields(url, keys)
+}
+
 func (c *Client) DownloadFromAcquisition(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
 	url := "acquisitions/" + id + "/files/" + filename
 	return c.DownloadSimple(url, destination)

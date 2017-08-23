@@ -8,6 +8,82 @@ import (
 	"time"
 )
 
+// Helper func
+func (c *Client) modifyFileAttrs(url string, attributes *FileFields) (*http.Response, *ModifiedAndJobsResponse, error) {
+	var aerr *Error
+	var response *ModifiedAndJobsResponse
+
+	resp, err := c.New().Put(url).BodyJSON(attributes).Receive(&response, &aerr)
+
+	// Should not have to check this count
+	// https://github.com/scitran/core/issues/680
+	if err == nil && aerr == nil && response.ModifiedCount != 1 {
+		return resp, nil, errors.New("Modifying file returned " + strconv.Itoa(response.ModifiedCount) + " instead of 1")
+	}
+
+	return resp, response, Coalesce(err, aerr)
+}
+
+// Helper func
+func (c *Client) setInfo(url string, set map[string]interface{}) (*http.Response, error) {
+	var aerr *Error
+	var response *ModifiedResponse
+
+	body := map[string]interface{}{
+		"set": set,
+	}
+
+	resp, err := c.New().Post(url).BodyJSON(body).Receive(&response, &aerr)
+
+	// Should not have to check this count
+	// https://github.com/scitran/core/issues/680
+	if err == nil && aerr == nil && response.ModifiedCount != 1 {
+		return resp, errors.New("Modifying file returned " + strconv.Itoa(response.ModifiedCount) + " instead of 1")
+	}
+
+	return resp, Coalesce(err, aerr)
+}
+
+// Helper func
+func (c *Client) replaceInfo(url string, replace map[string]interface{}) (*http.Response, error) {
+	var aerr *Error
+	var response *ModifiedResponse
+
+	body := map[string]interface{}{
+		"replace": replace,
+	}
+
+	resp, err := c.New().Post(url).BodyJSON(body).Receive(&response, &aerr)
+
+	// Should not have to check this count
+	// https://github.com/scitran/core/issues/680
+	if err == nil && aerr == nil && response.ModifiedCount != 1 {
+		return resp, errors.New("Modifying file returned " + strconv.Itoa(response.ModifiedCount) + " instead of 1")
+	}
+
+	return resp, Coalesce(err, aerr)
+}
+
+// Helper func
+func (c *Client) deleteInfoFields(url string, keys []string) (*http.Response, error) {
+	var aerr *Error
+	var response *ModifiedResponse
+
+	body := map[string]interface{}{
+		"delete": keys,
+	}
+
+	resp, err := c.New().Post(url).BodyJSON(body).Receive(&response, &aerr)
+
+	// Should not have to check this count
+	// https://github.com/scitran/core/issues/680
+	if err == nil && aerr == nil && response.ModifiedCount != 1 {
+		return resp, errors.New("Modifying file returned " + strconv.Itoa(response.ModifiedCount) + " instead of 1")
+	}
+
+	return resp, Coalesce(err, aerr)
+}
+
 // ParseApiKey accepts an API key and returns the hostname, port, key, and any parsing error.
 func ParseApiKey(apiKey string) (string, int, string, error) {
 	var err error

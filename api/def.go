@@ -45,6 +45,12 @@ type ModifiedResponse struct {
 	ModifiedCount int `json:"modified"`
 }
 
+// ModifiedAndJobsResponse is used for endpoints that respond with a count of modified objects.
+type ModifiedAndJobsResponse struct {
+	ModifiedCount int `json:"modified"`
+	JobsTriggered int `json:"jobs_triggered"`
+}
+
 // DeleteResponse is used for endpoints that respond with a count of deleted objects.
 type DeletedResponse struct {
 	DeletedCount int `json:"deleted"`

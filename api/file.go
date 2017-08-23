@@ -9,7 +9,7 @@ type File struct {
 	Origin *Origin `json:"origin,omitempty"`
 	Size   int     `json:"size,omitempty"`
 
-	Instrument   string   `json:"instrument,omitempty"`
+	Modality     string   `json:"modality,omitempty"`
 	Mimetype     string   `json:"mimetype,omitempty"`
 	Measurements []string `json:"measurements,omitempty"`
 	Type         string   `json:"type,omitempty"`
@@ -19,4 +19,10 @@ type File struct {
 
 	Created  *time.Time `json:"created,omitempty"`
 	Modified *time.Time `json:"modified,omitempty"`
+}
+
+type FileFields struct {
+	Modality     string   `json:"modality,omitempty"`
+	Measurements []string `json:"measurements,omitempty"`
+	Type         string   `json:"type,omitempty"`
 }

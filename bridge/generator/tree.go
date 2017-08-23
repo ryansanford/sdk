@@ -42,9 +42,21 @@ func isStringExpr(ex ast.Expr) bool {
 	return ok && ident.Name == "string"
 }
 
+// Returns if ex is a data expr, the name of the expr, and if the value should be dereferenced
 func isDataExpr(ex ast.Expr) (bool, string, bool) {
 
-	// Returns if ex is a data expr, the name of the expr, and if the value should be dereferenced
+	// First, check if this is a map[string]interface{}
+	mapEx, isMap := ex.(*ast.MapType)
+	if isMap {
+
+		// Assert key and value types
+		keyIdent, keyIsIdent := mapEx.Key.(*ast.Ident)
+		_, valueIsInterface := mapEx.Value.(*ast.InterfaceType)
+
+		if keyIsIdent && keyIdent.Name == "string" && valueIsInterface {
+			return true, "map[string]interface{}", false
+		}
+	}
 
 	// might be an array of pointers; if so, unwrap
 	array, isArray := ex.(*ast.ArrayType)
@@ -73,7 +85,7 @@ func isDataExpr(ex ast.Expr) (bool, string, bool) {
 	name := ident.Name
 
 	// Whitelist; could replace with lexing later
-	whitelist := []string{"Acquisition", "Batch", "BatchProposal", "Collection", "Client", "Config", "ContainerReference", "DeletedResponse", "Error", "FileReference", "Formula", "FormulaResult", "Gear", "GearDoc", "GearSource", "Group", "IdResponse", "Input", "Job", "JobLog", "JobLogStatement", "Key", "ModifiedResponse", "Note", "Origin", "Output", "Permission", "ProgressReader", "Project", "Result", "SearchResponseList", "SearchQuery", "Session", "Subject", "Target", "UploadResponse", "UploadSource", "User", "Version"}
+	whitelist := []string{"Acquisition", "Batch", "BatchProposal", "Collection", "Client", "Config", "ContainerReference", "DeletedResponse", "Error", "FileFields", "FileReference", "Formula", "FormulaResult", "Gear", "GearDoc", "GearSource", "Group", "IdResponse", "Input", "Job", "JobLog", "JobLogStatement", "Key", "ModifiedAndJobsResponse", "ModifiedResponse", "Note", "Origin", "Output", "Permission", "ProgressReader", "Project", "Result", "SearchResponseList", "SearchQuery", "Session", "Subject", "Target", "UploadResponse", "UploadSource", "User", "Version"}
 
 	if stringInSlice(name, whitelist) {
 		return true, "api." + name, true

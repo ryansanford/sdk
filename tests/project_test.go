@@ -118,6 +118,63 @@ func (t *F) TestProjectFiles() {
 	t.checkProgressChanEndsWith(progress, 45)
 	t.So(<-resultChan, ShouldBeNil)
 	t.So(buffer.String(), ShouldEqual, "The best lack all conviction, while the worst")
+
+	// Bundling: test file attributes
+	t.So(rProject.Files[0].Modality, ShouldEqual, "")
+	t.So(rProject.Files[0].Measurements, ShouldHaveLength, 0)
+	t.So(rProject.Files[0].Type, ShouldEqual, "text")
+
+	_, response, err := t.ModifyProjectFile(projectId, "yeats.txt", &api.FileFields{
+		Modality:     "MR",
+		Measurements: []string{"functional"},
+		Type:         "dicom",
+	})
+	t.So(err, ShouldBeNil)
+
+	// Check that no jobs were triggered and attrs were modified
+	t.So(response.JobsTriggered, ShouldEqual, 0)
+
+	rProject, _, err = t.GetProject(projectId)
+	t.So(err, ShouldBeNil)
+	t.So(rProject.Files[0].Modality, ShouldEqual, "MR")
+	t.So(rProject.Files[0].Measurements, ShouldHaveLength, 1)
+	t.So(rProject.Files[0].Measurements[0], ShouldEqual, "functional")
+	t.So(rProject.Files[0].Type, ShouldEqual, "dicom")
+
+	// Test file info
+	t.So(rProject.Files[0].Info, ShouldBeEmpty)
+	_, err = t.ReplaceProjectFileInfo(projectId, "yeats.txt", map[string]interface{}{
+		"a": 1,
+		"b": 2,
+		"c": 3,
+		"d": 4,
+	})
+	t.So(err, ShouldBeNil)
+	_, err = t.SetProjectFileInfo(projectId, "yeats.txt", map[string]interface{}{
+		"c": 5,
+	})
+
+	rProject, _, err = t.GetProject(projectId)
+	t.So(err, ShouldBeNil)
+	t.So(rProject.Files[0].Info["a"], ShouldEqual, 1)
+	t.So(rProject.Files[0].Info["b"], ShouldEqual, 2)
+	t.So(rProject.Files[0].Info["c"], ShouldEqual, 5)
+	t.So(rProject.Files[0].Info["d"], ShouldEqual, 4)
+
+	_, err = t.DeleteProjectFileInfoFields(projectId, "yeats.txt", []string{"c", "d"})
+	t.So(err, ShouldBeNil)
+
+	rProject, _, err = t.GetProject(projectId)
+	t.So(err, ShouldBeNil)
+	t.So(rProject.Files[0].Info["a"], ShouldEqual, 1)
+	t.So(rProject.Files[0].Info["b"], ShouldEqual, 2)
+	t.So(rProject.Files[0].Info["c"], ShouldBeNil)
+	t.So(rProject.Files[0].Info["d"], ShouldBeNil)
+
+	_, err = t.ReplaceProjectFileInfo(projectId, "yeats.txt", map[string]interface{}{})
+	rProject, _, err = t.GetProject(projectId)
+	t.So(err, ShouldBeNil)
+	t.So(rProject.Files[0].Info, ShouldBeEmpty)
 }
 
 func (t *F) createTestProject() (string, string) {
