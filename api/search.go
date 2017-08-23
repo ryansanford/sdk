@@ -93,11 +93,22 @@ type SearchResponseList struct {
 	Results []*SearchResponse `json:"results,omitempty"`
 }
 
-func (c *Client) Search(search_query *SearchQuery) (*SearchResponseList, *http.Response, error) {
+
+func (c *Client) SearchRaw(search_query *SearchQuery) (*SearchResponseList, *http.Response, error) {
 	var aerr *Error
 	var response *SearchResponseList
 
 	resp, err := c.New().Post("dataexplorer/search").BodyJSON(search_query).Receive(&response, &aerr)
 
 	return response, resp, Coalesce(err, aerr)
+}
+func (c *Client) Search(search_query *SearchQuery) ([]*SourceResponse, *http.Response, error) {
+	var response *SearchResponseList
+	var cleanList []*SourceResponse
+
+	response, http, err := c.SearchRaw(search_query)
+	for _, result := range response.Results {
+		cleanList = append(cleanList, result.Source)
+	}
+	return cleanList, http, err
 }
