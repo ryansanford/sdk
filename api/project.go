@@ -135,6 +135,26 @@ func (c *Client) UploadToProject(id string, files ...*UploadSource) (chan int64,
 	return c.UploadSimple(url, nil, files...)
 }
 
+func (c *Client) ModifyProjectFile(id string, filename string, attributes *FileFields) (*http.Response, *ModifiedAndJobsResponse, error) {
+	url := "projects/" + id + "/files/" + filename
+	return c.modifyFileAttrs(url, attributes)
+}
+
+func (c *Client) SetProjectFileInfo(id string, filename string, set map[string]interface{}) (*http.Response, error) {
+	url := "projects/" + id + "/files/" + filename + "/info"
+	return c.setInfo(url, set)
+}
+
+func (c *Client) ReplaceProjectFileInfo(id string, filename string, replace map[string]interface{}) (*http.Response, error) {
+	url := "projects/" + id + "/files/" + filename + "/info"
+	return c.replaceInfo(url, replace)
+}
+
+func (c *Client) DeleteProjectFileInfoFields(id string, filename string, keys []string) (*http.Response, error) {
+	url := "projects/" + id + "/files/" + filename + "/info"
+	return c.deleteInfoFields(url, keys)
+}
+
 func (c *Client) DownloadFromProject(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
 	url := "projects/" + id + "/files/" + filename
 	return c.DownloadSimple(url, destination)

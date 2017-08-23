@@ -110,6 +110,63 @@ func (t *F) TestAcquisitionFiles() {
 	t.checkProgressChanEndsWith(progress, 42)
 	t.So(<-resultChan, ShouldBeNil)
 	t.So(buffer.String(), ShouldEqual, "Things fall apart; the centre cannot hold;")
+
+	// Bundling: test file attributes
+	t.So(rAcquisition.Files[0].Modality, ShouldEqual, "")
+	t.So(rAcquisition.Files[0].Measurements, ShouldHaveLength, 0)
+	t.So(rAcquisition.Files[0].Type, ShouldEqual, "text")
+
+	_, response, err := t.ModifyAcquisitionFile(acquisitionId, "yeats.txt", &api.FileFields{
+		Modality:     "MR",
+		Measurements: []string{"functional"},
+		Type:         "dicom",
+	})
+	t.So(err, ShouldBeNil)
+
+	// Check that no jobs were triggered and attrs were modified
+	t.So(response.JobsTriggered, ShouldEqual, 0)
+
+	rAcquisition, _, err = t.GetAcquisition(acquisitionId)
+	t.So(err, ShouldBeNil)
+	t.So(rAcquisition.Files[0].Modality, ShouldEqual, "MR")
+	t.So(rAcquisition.Files[0].Measurements, ShouldHaveLength, 1)
+	t.So(rAcquisition.Files[0].Measurements[0], ShouldEqual, "functional")
+	t.So(rAcquisition.Files[0].Type, ShouldEqual, "dicom")
+
+	// Test file info
+	t.So(rAcquisition.Files[0].Info, ShouldBeEmpty)
+	_, err = t.ReplaceAcquisitionFileInfo(acquisitionId, "yeats.txt", map[string]interface{}{
+		"a": 1,
+		"b": 2,
+		"c": 3,
+		"d": 4,
+	})
+	t.So(err, ShouldBeNil)
+	_, err = t.SetAcquisitionFileInfo(acquisitionId, "yeats.txt", map[string]interface{}{
+		"c": 5,
+	})
+
+	rAcquisition, _, err = t.GetAcquisition(acquisitionId)
+	t.So(err, ShouldBeNil)
+	t.So(rAcquisition.Files[0].Info["a"], ShouldEqual, 1)
+	t.So(rAcquisition.Files[0].Info["b"], ShouldEqual, 2)
+	t.So(rAcquisition.Files[0].Info["c"], ShouldEqual, 5)
+	t.So(rAcquisition.Files[0].Info["d"], ShouldEqual, 4)
+
+	_, err = t.DeleteAcquisitionFileInfoFields(acquisitionId, "yeats.txt", []string{"c", "d"})
+	t.So(err, ShouldBeNil)
+
+	rAcquisition, _, err = t.GetAcquisition(acquisitionId)
+	t.So(err, ShouldBeNil)
+	t.So(rAcquisition.Files[0].Info["a"], ShouldEqual, 1)
+	t.So(rAcquisition.Files[0].Info["b"], ShouldEqual, 2)
+	t.So(rAcquisition.Files[0].Info["c"], ShouldBeNil)
+	t.So(rAcquisition.Files[0].Info["d"], ShouldBeNil)
+
+	_, err = t.ReplaceAcquisitionFileInfo(acquisitionId, "yeats.txt", map[string]interface{}{})
+	rAcquisition, _, err = t.GetAcquisition(acquisitionId)
+	t.So(err, ShouldBeNil)
+	t.So(rAcquisition.Files[0].Info, ShouldBeEmpty)
 }
 
 func (t *F) createTestAcquisition() (string, string, string, string) {

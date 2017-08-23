@@ -176,6 +176,26 @@ func (c *Client) UploadToCollection(id string, files ...*UploadSource) (chan int
 	return c.UploadSimple(url, nil, files...)
 }
 
+func (c *Client) ModifyCollectionFile(id string, filename string, attributes *FileFields) (*http.Response, *ModifiedAndJobsResponse, error) {
+	url := "collections/" + id + "/files/" + filename
+	return c.modifyFileAttrs(url, attributes)
+}
+
+func (c *Client) SetCollectionFileInfo(id string, filename string, set map[string]interface{}) (*http.Response, error) {
+	url := "collections/" + id + "/files/" + filename + "/info"
+	return c.setInfo(url, set)
+}
+
+func (c *Client) ReplaceCollectionFileInfo(id string, filename string, replace map[string]interface{}) (*http.Response, error) {
+	url := "collections/" + id + "/files/" + filename + "/info"
+	return c.replaceInfo(url, replace)
+}
+
+func (c *Client) DeleteCollectionFileInfoFields(id string, filename string, keys []string) (*http.Response, error) {
+	url := "collections/" + id + "/files/" + filename + "/info"
+	return c.deleteInfoFields(url, keys)
+}
+
 func (c *Client) DownloadFromCollection(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
 	url := "collections/" + id + "/files/" + filename
 	return c.DownloadSimple(url, destination)

@@ -19,6 +19,7 @@ eval $(../make.sh env)
 
 # Generate the go bridge and clients
 go run generator/*.go
+gofmt -w -s dist/bridge.go
 
 # Ensure the go bridge is valid
 # Only necessary when testing changes to the Go template.

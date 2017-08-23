@@ -151,6 +151,26 @@ func (c *Client) UploadToSession(id string, files ...*UploadSource) (chan int64,
 	return c.UploadSimple(url, nil, files...)
 }
 
+func (c *Client) ModifySessionFile(id string, filename string, attributes *FileFields) (*http.Response, *ModifiedAndJobsResponse, error) {
+	url := "sessions/" + id + "/files/" + filename
+	return c.modifyFileAttrs(url, attributes)
+}
+
+func (c *Client) SetSessionFileInfo(id string, filename string, set map[string]interface{}) (*http.Response, error) {
+	url := "sessions/" + id + "/files/" + filename + "/info"
+	return c.setInfo(url, set)
+}
+
+func (c *Client) ReplaceSessionFileInfo(id string, filename string, replace map[string]interface{}) (*http.Response, error) {
+	url := "sessions/" + id + "/files/" + filename + "/info"
+	return c.replaceInfo(url, replace)
+}
+
+func (c *Client) DeleteSessionFileInfoFields(id string, filename string, keys []string) (*http.Response, error) {
+	url := "sessions/" + id + "/files/" + filename + "/info"
+	return c.deleteInfoFields(url, keys)
+}
+
 func (c *Client) DownloadFromSession(id string, filename string, destination *DownloadSource) (chan int64, chan error) {
 	url := "sessions/" + id + "/files/" + filename
 	return c.DownloadSimple(url, destination)
