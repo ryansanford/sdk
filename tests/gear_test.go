@@ -57,6 +57,11 @@ func (t *F) TestGears() {
 }
 
 func (t *F) createTestGear() string {
+
+	//
+	// Do not modify the below gear document without checking the other callees!
+	//
+
 	gear := &api.Gear{
 		Name:        RandStringLower(),
 		Label:       RandString(),
