@@ -1,0 +1,169 @@
+package main
+
+import (
+	. "fmt"
+	"encoding/json"
+	"os"
+	"strings"
+	"text/tabwriter"
+
+	"github.com/spf13/cobra"
+
+	"flywheel.io/sdk/api"
+)
+
+// CallResult holds the response to any call to the C bridge.
+// Most calls will return a JSON marshaled CallResult.
+type CallResult struct {
+
+	// Success specifies whether the call succeeded.
+	Success bool `json:"success"`
+
+	// Message contains an error message. Valid IFF success is false.
+	Message string `json:"message"`
+
+	// Data contains the result of the call. Can be null.
+	Data interface{} `json:"data"`
+}
+
+func makeClient(apiKey string) *api.Client {
+
+	// Parse the key into its components, so that we can activate some bridge-only features.
+	host, port, key, err := api.ParseApiKey(apiKey)
+	_ = host
+
+	// Intentionally no error handling.
+	// It is the frontend's responsibility to check the API key format.
+	//
+	// If the bridge is called with an invalid key, in principle the behavior is undefined.
+	// In practice, you'll probably get a long, irritating NPE stack trace.
+	if err != nil {
+		return nil
+	}
+
+	options := []api.ApiKeyClientOption{}
+
+	// Bridge-only feature:
+	// If port number is specified, it's a non-production key; disable SSL verification.
+	//
+	// This is intended to only be of use to developers hacking on the SDK.
+	// No production instance should EVER be on a non-443 port.
+	if port != 443 {
+		options = append(options, api.InsecureNoSSLVerification)
+	}
+
+	// Intentionally undocumented option: if ',InsecureUsePlaintext' is appended to the key, use HTTP.
+	// This should literally never be used outside of integration tests.
+	if strings.HasSuffix(key, ",InsecureUsePlaintext") {
+		options = append(options, api.InsecureUsePlaintext)
+
+		// Remove the suffix from the API key, because it's invalid
+		apiKey = strings.TrimRight(apiKey, ",InsecureUsePlaintext")
+	}
+
+	return api.NewApiKeyClient(apiKey, options...)
+}
+
+func handleError(err error) {
+	result := CallResult{
+		Success: false,
+		Message: err.Error(),
+		Data:    nil,
+	}
+
+	// Error ignored because no unknown types to marshal
+	raw, _ := json.Marshal(result)
+	Println(string(raw))
+	os.Exit(2)
+}
+
+func handleSuccess(data interface{}) {
+	result := CallResult{
+		Success: true,
+		Message: "",
+		Data:    data,
+	}
+
+	raw, encodeErr := json.Marshal(result)
+
+	// Should never happen; if triggered, the helper was called with bad data
+	if encodeErr != nil {
+		handleError(encodeErr)
+	}
+
+	Println(string(raw))
+	os.Exit(0)
+}
+
+// Given a normal API result, set a success pointer and return either the data or the error contents.
+func format(data interface{}, err error) {
+
+	if err != nil {
+		handleError(err)
+	}
+
+	handleSuccess(data)
+}
+
+func main() {
+	err := BuildCommand("{{.Version}}").Execute()
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
+func BuildCommand(version string) *cobra.Command {
+	root := &cobra.Command{
+		Use:   "sdk",
+		Short: "Flywheel SDK command-line wrapper",
+	}
+
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Print CLI version",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			Println("flywheel-sdk")
+
+			w := tabwriter.NewWriter(os.Stdout, 0, 2, 1, ' ', 0)
+			Fprintf(w, "%s\t%s\n", " Version:", version)
+			w.Flush()
+		},
+	}
+	root.AddCommand(cmd)
+
+	//
+	// -- AUTO GENERATED CODE FOLLOWS --
+	//
+
+	{{range .Signatures}}
+	cmd = &cobra.Command{
+		Use: "{{.Name}} [api_key]{{range .Params}} [{{.Name}}]{{end}}",
+		Args: cobra.ExactArgs({{.LastParamIndex}} + 2),
+
+		Run: func(cmd *cobra.Command, args []string) {
+
+			// Grab data vars out of args
+			apiKey := args[0]
+			{{range $ind, $val := .Params}}{{$val.Name}} := args[{{$ind}} + 1]
+			{{end}}
+
+			{{if ne .ParamDataName ""}}
+			var parsed{{.ParamDataName}} {{.ParamDataType}}
+			parseErr := json.Unmarshal([]byte({{.ParamDataName}}), &parsed{{.ParamDataName}})
+			if parseErr != nil {
+				format(nil, parseErr)
+			}
+			{{end}}
+
+			{{ $length := .LastResultIndex }}
+			{{range $ind, $val := .Results}}{{.Name}}{{if lt $ind $length}}, {{end}}{{end}} := makeClient(apiKey).{{.Name}}({{ $length := .LastParamIndex }}{{ $ShouldDeref := .ShouldDeref }}{{range $ind, $val := .Params}}{{if eq $val.Type "data"}}{{if $ShouldDeref }}&{{end}}parsed{{end}}{{$val.Name}}{{if lt $ind $length}}, {{end}}{{end}})
+
+			format({{.ReturnDataName}}, err)
+		},
+	}
+	root.AddCommand(cmd)
+	{{end}}
+
+	return root
+}
