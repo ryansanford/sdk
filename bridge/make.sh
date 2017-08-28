@@ -8,7 +8,7 @@ localOs=$( uname -s | tr '[:upper:]' '[:lower:]' )
 # Clean
 set +e
 find dist -type f | grep -E 'flywheelBridge(Simple)?.(so|dylib|h)' | xargs rm -f
-rm -f dist/bridge.go dist/python/flywheel.py dist/matlab/Flywheel.m dist/binary/sdk*
+rm -f dist/bridge.go dist/python/flywheel.py dist/matlab/Flywheel.m  dist/matlab-binary/Flywheel.m dist/binary/sdk* dist/matlab-binary/sdk*
 set -e
 
 # Ensure the SDK is ready
@@ -45,3 +45,6 @@ cp dist/c/flywheelBridge.* dist/matlab/
 sed -i '/^typedef /d; /^\#line /d;' dist/matlab/flywheelBridge.h
 # Rename file
 mv dist/matlab/flywheelBridge.h dist/matlab/flywheelBridgeSimple.h
+
+# Matlab-binary needs the SDK binary
+cp dist/binary/sdk dist/matlab-binary/sdk
