@@ -44,6 +44,12 @@ classdef Flywheel
             warningid = 'MATLAB:namelengthmaxexceeded';
             warning('off',warningid);
         end
+
+        % TestBridge
+        function cmdout = testBridge(s)
+            [status,cmdout] = system([obj.folder '/sdk TestBridge ' s]);
+        end
+
         %
         % AUTO GENERATED CODE FOLLOWS
         %
@@ -128,10 +134,6 @@ classdef Flywheel
             else
                 newStruct = oldStruct;
             end
-        end
-        % TestBridge
-        function cmdout = testBridge(s)
-            [status,cmdout] = system([obj.folder '/sdk TestBridge ' s]);
         end
     end
 end
