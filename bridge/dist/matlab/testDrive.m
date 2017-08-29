@@ -1,10 +1,11 @@
-%% Test methods in Bridge.m
+%% Test methods in Flywheel.m
 %% Setup
 disp('Setup')
 % Before running this script, ensure the following paths were added
-%   path to flywheel.so and flywheel.h files (same path)
-%   path to Bridge.m
+%   path to Flywheel.m to be tested
 %   path to JSONlab
+%   set SdkTestKey environment variable as user API key
+%       ex: setenv('SdkTestKey', APIKEY)
 
 % Create string to be used in testdrive
 testString = 'aeu8457bjclsj97v2h';
