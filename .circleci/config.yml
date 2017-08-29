@@ -129,7 +129,9 @@ jobs:
                 command: ./bridge/make.sh
             - run:
                 name: Test drive python frontend
-                command: python test-drive.py
+                command: |
+                  python test-drive.py
+                  python3 test-drive.py
                 working_directory: /workspace/src/flywheel.io/sdk/bridge/dist/python
                 environment:
                   SdkTestKey: "localhost:8080:insecure-key,InsecureUsePlaintext"
