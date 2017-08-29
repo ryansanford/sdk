@@ -130,28 +130,8 @@ classdef Flywheel
             end
         end
         % TestBridge
-        function ptrValue = testBridge(s)
-            Flywheel.loadBridge()
-            % Call bridge
-            ptrValue = calllib('flywheelBridge','TestBridge',s);
-        end
-        % loadBridge
-        function [] = loadBridge()
-            % Load flywheel shared library
-            if not(libisloaded('flywheelBridge'))
-                % loading in flywheelBridge.so file
-                try
-                    loadlibrary('flywheelBridge', 'flywheelBridgeSimple.h')
-                catch ME
-                    % Add some user-friendly message for OSX
-                    if (ismac && strcmp(ME.identifier, 'MATLAB:mex:NoCompilerFound_link'))
-                        % TODO: improve message to the user
-                        causeException = MException('FlywheelException:NoCompiler', 'Please install Xcode.');
-                        ME = addCause(ME, causeException);
-                    end
-                    rethrow(ME)
-                end
-            end
+        function cmdout = testBridge(s)
+            [status,cmdout] = system([obj.folder '/sdk TestBridge ' s]);
         end
     end
 end
