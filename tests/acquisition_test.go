@@ -88,28 +88,18 @@ func (t *F) TestAcquisitionFiles() {
 	acquisitionId, _, err := t.AddAcquisition(acquisition)
 	t.So(err, ShouldBeNil)
 
-	src := UploadSourceFromString("yeats.txt", "Things fall apart; the centre cannot hold;")
-	progress, resultChan := t.UploadToAcquisition(acquisitionId, src)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 42)
-	t.So(<-resultChan, ShouldBeNil)
+	poem := "Turning and turning in the widening gyre"
+	t.uploadText(t.UploadToAcquisition, acquisitionId, "yeats.txt", poem)
 
 	rAcquisition, _, err := t.GetAcquisition(acquisitionId)
 	t.So(err, ShouldBeNil)
 	t.So(rAcquisition.Files, ShouldHaveLength, 1)
 	t.So(rAcquisition.Files[0].Name, ShouldEqual, "yeats.txt")
-	t.So(rAcquisition.Files[0].Size, ShouldEqual, 42)
+	t.So(rAcquisition.Files[0].Size, ShouldEqual, 40)
 	t.So(rAcquisition.Files[0].Mimetype, ShouldEqual, "text/plain")
 
-	// Download the same file
-	buffer, dest := DownloadSourceToBuffer()
-	progress, resultChan = t.DownloadFromAcquisition(acquisitionId, "yeats.txt", dest)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 42)
-	t.So(<-resultChan, ShouldBeNil)
-	t.So(buffer.String(), ShouldEqual, "Things fall apart; the centre cannot hold;")
+	// Download the same file and check content
+	t.downloadText(t.DownloadFromAcquisition, acquisitionId, "yeats.txt", poem)
 
 	// Bundling: test file attributes
 	t.So(rAcquisition.Files[0].Modality, ShouldEqual, "")

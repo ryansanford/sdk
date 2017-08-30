@@ -22,7 +22,7 @@ func (t *F) TestGears() {
 	}
 
 	gearDoc := &api.GearDoc{
-		Category: "utility",
+		Category: api.Utility,
 		Gear:     gear,
 	}
 

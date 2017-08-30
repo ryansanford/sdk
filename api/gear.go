@@ -32,9 +32,24 @@ type Gear struct {
 	Custom map[string]interface{} `json:"custom,omitempty"`
 }
 
+// Enum for gear categories.
+// Gear categories mainly affect how they are displayed in the user interfaces.
+type GearCategory string
+
+const (
+	Utility  GearCategory = "utility"
+	Analysis GearCategory = "analysis"
+
+	// Legacy category; equivalent to Utility
+	Converter GearCategory = "converter"
+
+	// Legacy category; equivalent to Utility
+	Qa GearCategory = "qa"
+)
+
 type GearDoc struct {
-	Id       string `json:"_id,omitempty"`
-	Category string `json:"category,omitempty"`
+	Id       string       `json:"_id,omitempty"`
+	Category GearCategory `json:"category,omitempty"`
 
 	Gear   *Gear       `json:"gear,omitempty"`
 	Source *GearSource `json:"exchange,omitempty"`

@@ -96,28 +96,18 @@ func (t *F) TestProjectFiles() {
 	projectId, _, err := t.AddProject(project)
 	t.So(err, ShouldBeNil)
 
-	src := UploadSourceFromString("yeats.txt", "The best lack all conviction, while the worst")
-	progress, resultChan := t.UploadToProject(projectId, src)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 45)
-	t.So(<-resultChan, ShouldBeNil)
+	poem := "The ceremony of innocence is drowned;"
+	t.uploadText(t.UploadToProject, projectId, "yeats.txt", poem)
 
 	rProject, _, err := t.GetProject(projectId)
 	t.So(err, ShouldBeNil)
 	t.So(rProject.Files, ShouldHaveLength, 1)
 	t.So(rProject.Files[0].Name, ShouldEqual, "yeats.txt")
-	t.So(rProject.Files[0].Size, ShouldEqual, 45)
+	t.So(rProject.Files[0].Size, ShouldEqual, 37)
 	t.So(rProject.Files[0].Mimetype, ShouldEqual, "text/plain")
 
-	// Download the same file
-	buffer, dest := DownloadSourceToBuffer()
-	progress, resultChan = t.DownloadFromProject(projectId, "yeats.txt", dest)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 45)
-	t.So(<-resultChan, ShouldBeNil)
-	t.So(buffer.String(), ShouldEqual, "The best lack all conviction, while the worst")
+	// Download the same file and check content
+	t.downloadText(t.DownloadFromProject, projectId, "yeats.txt", poem)
 
 	// Bundling: test file attributes
 	t.So(rProject.Files[0].Modality, ShouldEqual, "")
