@@ -109,28 +109,18 @@ func (t *F) TestSessionFiles() {
 	sessionId, _, err := t.AddSession(session)
 	t.So(err, ShouldBeNil)
 
-	src := UploadSourceFromString("yeats.txt", "Are full of passionate intensity.")
-	progress, resultChan := t.UploadToSession(sessionId, src)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 33)
-	t.So(<-resultChan, ShouldBeNil)
+	poem := "The best lack all conviction, while the worst"
+	t.uploadText(t.UploadToSession, sessionId, "yeats.txt", poem)
 
 	rSession, _, err := t.GetSession(sessionId)
 	t.So(err, ShouldBeNil)
 	t.So(rSession.Files, ShouldHaveLength, 1)
 	t.So(rSession.Files[0].Name, ShouldEqual, "yeats.txt")
-	t.So(rSession.Files[0].Size, ShouldEqual, 33)
+	t.So(rSession.Files[0].Size, ShouldEqual, 45)
 	t.So(rSession.Files[0].Mimetype, ShouldEqual, "text/plain")
 
-	// Download the same file
-	buffer, dest := DownloadSourceToBuffer()
-	progress, resultChan = t.DownloadFromSession(sessionId, "yeats.txt", dest)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 33)
-	t.So(<-resultChan, ShouldBeNil)
-	t.So(buffer.String(), ShouldEqual, "Are full of passionate intensity.")
+	// Download the same file and check content
+	t.downloadText(t.DownloadFromSession, sessionId, "yeats.txt", poem)
 
 	// Bundling: test file attributes
 	t.So(rSession.Files[0].Modality, ShouldEqual, "")

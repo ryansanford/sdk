@@ -12,11 +12,8 @@ func (t *F) TestBatch() {
 	_, _, _, acquisitionId := t.createTestAcquisition()
 	gearId := t.createTestGear()
 
-	// Add file to batch over
-	src := UploadSourceFromString("yeats.txt", "The falcon cannot hear the falconer;")
-	progress, resultChan := t.UploadToAcquisition(acquisitionId, src)
-	t.checkProgressChanEndsWith(progress, 36)
-	t.So(<-resultChan, ShouldBeNil)
+	poem := "The falcon cannot hear the falconer;"
+	t.uploadText(t.UploadToAcquisition, acquisitionId, "yeats.txt", poem)
 
 	// Add
 	tag := RandString()

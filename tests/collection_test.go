@@ -112,28 +112,18 @@ func (t *F) TestCollectionFiles() {
 	collectionId, _, err := t.AddCollection(collection)
 	t.So(err, ShouldBeNil)
 
-	src := UploadSourceFromString("yeats.txt", "Surely some revelation is at hand;")
-	progress, resultChan := t.UploadToCollection(collectionId, src)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 34)
-	t.So(<-resultChan, ShouldBeNil)
+	poem := "Things fall apart; the centre cannot hold;"
+	t.uploadText(t.UploadToCollection, collectionId, "yeats.txt", poem)
 
 	rCollection, _, err := t.GetCollection(collectionId)
 	t.So(err, ShouldBeNil)
 	t.So(rCollection.Files, ShouldHaveLength, 1)
 	t.So(rCollection.Files[0].Name, ShouldEqual, "yeats.txt")
-	t.So(rCollection.Files[0].Size, ShouldEqual, 34)
+	t.So(rCollection.Files[0].Size, ShouldEqual, 42)
 	t.So(rCollection.Files[0].Mimetype, ShouldEqual, "text/plain")
 
-	// Download the same file
-	buffer, dest := DownloadSourceToBuffer()
-	progress, resultChan = t.DownloadFromCollection(collectionId, "yeats.txt", dest)
-
-	// Last update should be the full string length.
-	t.checkProgressChanEndsWith(progress, 34)
-	t.So(<-resultChan, ShouldBeNil)
-	t.So(buffer.String(), ShouldEqual, "Surely some revelation is at hand;")
+	// Download the same file and check content
+	t.downloadText(t.DownloadFromCollection, collectionId, "yeats.txt", poem)
 
 	// Bundling: test file attributes
 	t.So(rCollection.Files[0].Modality, ShouldEqual, "")

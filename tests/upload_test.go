@@ -25,8 +25,19 @@ func (t *F) TestBadUploads() {
 	t.So((<-result).Error(), ShouldStartWith, "open /dev/null/does-not-exist: ")
 
 	// Bad upload url
-	source = UploadSourceFromString("yeats.txt", "Surely some revelation is at hand;")
+	poem := "Are full of passionate intensity."
+	source = UploadSourceFromString("yeats.txt", poem)
 	_, result = t.UploadSimple("not-an-endpoint", nil, source)
 	// Could improve this in the future
 	t.So((<-result).Error(), ShouldEqual, "{\"status_code\": 404, \"message\": \"The resource could not be found.\"}")
+}
+
+// Given an upload function, container ID, filename, and content - upload & check length
+func (t *F) uploadText(fn func(string, ...*api.UploadSource) (chan int64, chan error), id, filename, text string) {
+	src := UploadSourceFromString(filename, text)
+	progress, resultChan := fn(id, src)
+
+	// Last update should be the full string length.
+	t.checkProgressChanEndsWith(progress, int64(len(text)))
+	t.So(<-resultChan, ShouldBeNil)
 }

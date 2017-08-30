@@ -12,6 +12,9 @@ func (t *F) TestJobs() {
 	_, _, _, acquisitionId := t.createTestAcquisition()
 	gearId := t.createTestGear()
 
+	poem := "Mere anarchy is loosed upon the world,"
+	t.uploadText(t.UploadToAcquisition, acquisitionId, "yeats.txt", poem)
+
 	tag := RandString()
 	job := &api.Job{
 		GearId: gearId,
@@ -22,7 +25,7 @@ func (t *F) TestJobs() {
 		},
 
 		Inputs: map[string]interface{}{
-			"x": &api.FileReference{
+			"any-file": &api.FileReference{
 				Id:   acquisitionId,
 				Type: "acquisition",
 				Name: "yeats.txt",
@@ -81,6 +84,9 @@ func (t *F) TestJobQueue() {
 	_, _, _, acquisitionId := t.createTestAcquisition()
 	gearId := t.createTestGear()
 
+	poem := "The blood-dimmed tide is loosed, and everywhere"
+	t.uploadText(t.UploadToAcquisition, acquisitionId, "yeats.txt", poem)
+
 	tag := RandString()
 	job := &api.Job{
 		GearId: gearId,
@@ -91,7 +97,7 @@ func (t *F) TestJobQueue() {
 		},
 
 		Inputs: map[string]interface{}{
-			"x": &api.FileReference{
+			"any-file": &api.FileReference{
 				Id:   acquisitionId,
 				Type: "acquisition",
 				Name: "yeats.txt",
