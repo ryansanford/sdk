@@ -46,7 +46,7 @@ classdef Flywheel
         end
 
         % TestBridge
-        function cmdout = testBridge(s)
+        function cmdout = testBridge(obj, s)
             [status,cmdout] = system([obj.folder '/sdk TestBridge ' s]);
         end
 
