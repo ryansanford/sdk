@@ -22,7 +22,7 @@ apiKey = getenv('SdkTestKey');
 fw = Flywheel(apiKey);
 
 % Check that data can flow back & forth across the bridge
-bridgeResponse = Flywheel.testBridge('world');
+bridgeResponse = fw.testBridge('world');
 assert(strcmp(bridgeResponse,'Hello world'), errMsg)
 
 %% Users
@@ -51,14 +51,14 @@ disp('Testing Groups')
 groupId = fw.addGroup(struct('id',testString));
 
 fw.addGroupTag(groupId, 'blue');
-fw.modifyGroup(groupId, struct('name','testdrive'));
+fw.modifyGroup(groupId, struct('label','testdrive'));
 
 groups = fw.getAllGroups();
 assert(~isempty(groups))
 
 group = fw.getGroup(groupId);
-assert(strcmp(group.tags,'blue'), errMsg)
-assert(strcmp(group.name,'testdrive'), errMsg)
+assert(strcmp(group.tags{1},'blue'), errMsg)
+assert(strcmp(group.label,'testdrive'), errMsg)
 
 %% Projects
 disp('Testing Projects')
@@ -77,7 +77,7 @@ fw.uploadFileToProject(projectId, filename);
 fw.downloadFileFromProject(projectId, filename, '/tmp/download.txt');
 
 project = fw.getProject(projectId);
-assert(strcmp(project.tags,'blue'), errMsg)
+assert(strcmp(project.tags{1},'blue'), errMsg)
 assert(strcmp(project.label,'testdrive'), errMsg)
 assert(strcmp(project.notes{1,1}.text, 'This is a note'), errMsg)
 assert(strcmp(project.files{1,1}.name, filename), errMsg)
@@ -103,7 +103,7 @@ fw.uploadFileToSession(sessionId, filename);
 fw.downloadFileFromSession(sessionId, filename, '/tmp/download2.txt');
 
 session = fw.getSession(sessionId);
-assert(strcmp(session.tags, 'blue'), errMsg)
+assert(strcmp(session.tags{1}, 'blue'), errMsg)
 assert(strcmp(session.label, 'testdrive'), errMsg)
 assert(strcmp(session.notes{1,1}.text, 'This is a note'), errMsg)
 assert(strcmp(session.files{1,1}.name, filename), errMsg)
@@ -129,7 +129,7 @@ fw.uploadFileToAcquisition(acqId, filename);
 fw.downloadFileFromAcquisition(acqId, filename, '/tmp/download3.txt');
 
 acq = fw.getAcquisition(acqId);
-assert(strcmp(acq.tags,'blue'), errMsg)
+assert(strcmp(acq.tags{1},'blue'), errMsg)
 assert(strcmp(acq.label,'testdrive'), errMsg)
 assert(strcmp(acq.notes{1,1}.text, 'This is a note'), errMsg)
 assert(strcmp(acq.files{1,1}.name, filename), errMsg)
