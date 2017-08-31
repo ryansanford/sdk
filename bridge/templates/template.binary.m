@@ -62,7 +62,7 @@ classdef Flywheel
             {{.ParamDataName}} = Flywheel.replaceField({{.ParamDataName}},oldField,newField);
             {{.ParamDataName}} = savejson('',{{.ParamDataName}});
             {{end -}}
-            [status,cmdout] = system([obj.folder '/sdk {{.Name}} ' obj.key ' ' {{range .Params}} '"' {{.Name}} '" '{{end -}}]);
+            [status,cmdout] = system([obj.folder '/sdk {{.Name}} ' obj.key ' ' {{range .Params}} '''' {{.Name}} ''' '{{end -}}]);
 
             result = Flywheel.handleJson(status,cmdout);
         end
