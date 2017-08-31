@@ -132,6 +132,16 @@ func BuildCommand(version string) *cobra.Command {
 	}
 	root.AddCommand(cmd)
 
+	cmd = &cobra.Command{
+		Use:   "TestBridge [string]",
+		Short: "Test the SDK Bridge",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			Println("Hello " + args[0])
+		},
+	}
+	root.AddCommand(cmd)
+
 	//
 	// -- AUTO GENERATED CODE FOLLOWS --
 	//
