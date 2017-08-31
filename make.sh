@@ -6,7 +6,7 @@ unset CDPATH; cd "$( dirname "${BASH_SOURCE[0]}" )"; cd "$(pwd -P)"
 pkg="flywheel.io/sdk"
 testPkg="flywheel.io/sdk/tests"
 coverPkg="flywheel.io/sdk/api"
-goV=${GO_VERSION:-"1.9rc2"}
+goV=${GO_VERSION:-"1.9"}
 minGlideV="0.12.3"
 targets=( "linux/amd64" "darwin/amd64" "windows/amd64" )
 #
