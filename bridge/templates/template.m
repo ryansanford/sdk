@@ -41,12 +41,21 @@ classdef Flywheel
             warningid = 'MATLAB:namelengthmaxexceeded';
             warning('off',warningid);
         end
+
+        function ptrValue = testBridge(obj, s)
+            Flywheel.loadBridge()
+            % Call bridge
+            ptrValue = calllib('flywheelBridge','TestBridge',s);
+        end
+
         %
         % AUTO GENERATED CODE FOLLOWS
         %
 
-        {{range .Signatures}}% {{camel2lowercamel .Name}}
+        {{range .Signatures}}{{ $length := .LastParamIndex }}
         function result = {{camel2lowercamel .Name}}(obj{{range .Params}}, {{.Name}}{{end}})
+            % {{camel2lowercamel .Name}}({{range $ind, $val := .Params}}{{.Name}}{{if lt $ind $length}}, {{end}}{{end -}})
+
             statusPtr = libpointer('int32Ptr',-100);
             {{if ne .ParamDataName ""}}oldField = 'id';
             newField = 'x0x5F_id';
@@ -123,12 +132,6 @@ classdef Flywheel
             else
                 newStruct = oldStruct;
             end
-        end
-        % TestBridge
-        function ptrValue = testBridge(s)
-            Flywheel.loadBridge()
-            % Call bridge
-            ptrValue = calllib('flywheelBridge','TestBridge',s);
         end
         % loadBridge
         function [] = loadBridge()

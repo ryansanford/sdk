@@ -54,9 +54,10 @@ classdef Flywheel
         % AUTO GENERATED CODE FOLLOWS
         %
 
-        {{range .Signatures}}% {{camel2lowercamel .Name}}
+        {{range .Signatures}}{{ $length := .LastParamIndex }}
         function result = {{camel2lowercamel .Name}}(obj{{range .Params}}, {{.Name}}{{end}})
-            statusPtr = libpointer('int32Ptr',-100);
+            % {{camel2lowercamel .Name}}({{range $ind, $val := .Params}}{{.Name}}{{if lt $ind $length}}, {{end}}{{end -}})
+
             {{if ne .ParamDataName ""}}oldField = 'id';
             newField = 'x0x5F_id';
             {{.ParamDataName}} = Flywheel.replaceField({{.ParamDataName}},oldField,newField);
