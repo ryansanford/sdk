@@ -8,7 +8,7 @@ localOs=$( uname -s | tr '[:upper:]' '[:lower:]' )
 # Clean
 set +e
 find dist -type f | grep -E 'flywheelBridge(Simple)?.(so|dylib|h)' | xargs rm -f
-rm -f dist/bridge.go dist/python/flywheel.py dist/matlab/Flywheel.m
+rm -f dist/bridge.go dist/python/flywheel.py dist/matlab/Flywheel.m  dist/matlab-binary/Flywheel.m dist/binary/sdk* dist/matlab-binary/sdk*
 set -e
 
 # Ensure the SDK is ready
@@ -19,12 +19,16 @@ eval $(../make.sh env)
 
 # Generate the go bridge and clients
 go run generator/*.go
-gofmt -w -s dist/bridge.go
+gofmt -w -s dist/bridge.go dist/binary/sdk.go
 
 # Ensure the go bridge is valid
 # Only necessary when testing changes to the Go template.
 # echo
 # go install -v flywheel.io/sdk/bridge/dist
+
+# Generate the binary
+echo "Building the binary..."
+go build -v -o dist/binary/sdk dist/binary/sdk.go
 
 # Generate the C bridge
 echo "Building the C bridge..."
@@ -41,3 +45,6 @@ cp dist/c/flywheelBridge.* dist/matlab/
 sed -i '/^typedef /d; /^\#line /d;' dist/matlab/flywheelBridge.h
 # Rename file
 mv dist/matlab/flywheelBridge.h dist/matlab/flywheelBridgeSimple.h
+
+# Matlab-binary needs the SDK binary
+cp dist/binary/sdk dist/matlab-binary/sdk
